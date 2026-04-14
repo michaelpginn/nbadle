@@ -15,9 +15,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "NBAdle — Who Is Hotter?",
   description: "An ELO-based hot-or-not game for NBA players.",
+  other: {
+    "google-adsense-account": "ca-pub-8443815937268076",
+  },
 };
 
 export const viewport: Viewport = {
+  colorScheme: "light dark",
   themeColor: [
     { media: "(prefers-color-scheme: light)", color: "#f9fafb" },
     { media: "(prefers-color-scheme: dark)", color: "#030712" },
