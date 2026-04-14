@@ -17,6 +17,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
 
+  try {
+
   const { winnerId, loserId } = body;
 
   if (!winnerId || !loserId || winnerId === loserId) {
@@ -62,10 +64,14 @@ export async function POST(req: NextRequest) {
     }),
   ]);
 
-  return NextResponse.json({
-    winnerProbability: winnerExpected,
-    loserProbability: loserExpected,
-    newWinnerElo,
-    newLoserElo,
-  });
+    return NextResponse.json({
+      winnerProbability: winnerExpected,
+      loserProbability: loserExpected,
+      newWinnerElo,
+      newLoserElo,
+    });
+  } catch (e) {
+    console.error("[/api/vote]", e);
+    return NextResponse.json({ error: String(e) }, { status: 500 });
+  }
 }
