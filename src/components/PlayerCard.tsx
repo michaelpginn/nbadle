@@ -127,7 +127,7 @@ export default function PlayerCard({
           src={headshotUrl(player.nbaId)}
           alt={player.name}
           fill
-          className="object-cover object-top"
+          className="object-contain md:object-cover object-top"
           unoptimized
           priority
         />
