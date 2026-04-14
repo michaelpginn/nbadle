@@ -74,7 +74,7 @@ export default function Home() {
       // Prefetch next pair in the background while the user decides
       prefetchNext();
     },
-    [prefetchNext]
+    [prefetchNext],
   );
 
   const advance = useCallback(async () => {
@@ -127,14 +127,14 @@ export default function Home() {
         return next;
       });
 
-      setState1(pickedIsP1 ? "correct" : "fading");
-      setState2(pickedIsP1 ? "fading" : "correct");
+      setState1(pickedIsP1 ? "correct" : "idle");
+      setState2(pickedIsP1 ? "idle" : "correct");
 
       setTimeout(() => {
         setState1("fading");
         setState2("fading");
-        setTimeout(advance, 500);
-      }, 1000);
+        setTimeout(advance, 1000);
+      }, 2000);
     } else {
       setState1(pickedIsP1 ? "wrong" : "idle");
       setState2(pickedIsP1 ? "idle" : "wrong");
@@ -144,8 +144,12 @@ export default function Home() {
         return 0;
       });
 
-      // Show the wrong highlight + percentages for 2s before the dialog
-      setTimeout(() => setShowGameOver(true), 2000);
+      // Show wrong highlight for 1s, then fade out, then show dialog
+      setTimeout(() => {
+        setState1("fading");
+        setState2("fading");
+        setTimeout(() => setShowGameOver(true), 1000);
+      }, 2000);
     }
   };
 
@@ -163,7 +167,7 @@ export default function Home() {
         <StreakCounter streak={streak} />
       </header>
 
-      <div className="flex-1 flex flex-col items-center justify-center gap-8 px-4 py-10">
+      <div className="flex-1 flex flex-col items-center justify-start gap-8 px-4 py-10">
         <h2 className="text-3xl md:text-4xl font-black text-center tracking-tight">
           Who is hotter???
         </h2>
