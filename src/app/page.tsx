@@ -167,7 +167,7 @@ export default function Home() {
         <StreakCounter streak={streak} />
       </header>
 
-      <div className="flex-1 flex flex-col items-center justify-start gap-4 md:gap-8 px-4 py-4 md:py-10">
+      <div className="flex-1 min-h-0 flex flex-col items-center justify-start gap-4 md:gap-8 px-4 py-4 md:py-10">
         <h2 className="text-3xl md:text-4xl font-black text-center tracking-tight">
           Who is hotter???
         </h2>
@@ -177,7 +177,7 @@ export default function Home() {
             <div className="w-12 h-12 border-4 border-orange-400 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-10 w-full max-w-3xl">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-10 w-full max-w-3xl flex-1 min-h-0 md:flex-none">
             {player1 && (
               <PlayerCard
                 player={player1}

@@ -99,7 +99,7 @@ export default function PlayerCard({
         transition-all duration-700
         ${cardOpacity}
         ${!disabled ? "hover:scale-[1.02] hover:border-white/30" : ""}
-        w-full max-w-sm
+        w-full max-w-sm flex-1 md:flex-none
         group
       `}
     >
@@ -122,7 +122,7 @@ export default function PlayerCard({
       </div>
 
       {/* Headshot */}
-      <div className="relative w-full h-24 md:w-64 md:h-48 mx-auto overflow-hidden rounded-xl mt-1 md:mt-2">
+      <div className="relative w-full flex-1 min-h-0 md:flex-none md:w-64 md:h-48 mx-auto overflow-hidden rounded-xl mt-1 md:mt-2">
         <Image
           src={headshotUrl(player.nbaId)}
           alt={player.name}
