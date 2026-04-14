@@ -38,7 +38,7 @@ export default function GameOver({ streak, bestStreak, onRestart }: GameOverProp
 
         <button
           onClick={onRestart}
-          className="mt-2 bg-white text-black font-bold rounded-xl py-3 px-8 text-lg hover:bg-gray-200 active:scale-95 transition-all"
+          className="mt-2 w-full bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded-xl transition-colors"
         >
           Play Again
         </button>

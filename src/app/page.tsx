@@ -42,6 +42,7 @@ export default function Home() {
   const [bestStreak, setBestStreak] = useState(0);
   const [showGameOver, setShowGameOver] = useState(false);
   const [endedStreak, setEndedStreak] = useState(0);
+  const [showHowToPlay, setShowHowToPlay] = useState(false);
 
   const nextPair = useRef<PlayerPair | null>(null);
   const prefetching = useRef(false);
@@ -161,9 +162,18 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white flex flex-col">
       <header className="flex items-center justify-between px-8 py-5 border-b border-gray-200 dark:border-white/10">
-        <h1 className="text-2xl font-black tracking-tight">
-          NBA<span className="text-orange-400">dle</span>
-        </h1>
+        <div className="flex items-center gap-2">
+          <h1 className="text-2xl font-black tracking-tight">
+            NBA<span className="text-orange-400">dle</span>
+          </h1>
+          <button
+            onClick={() => setShowHowToPlay(true)}
+            className="w-5 h-5 rounded-full border-2 border-gray-400 dark:border-gray-500 text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
+            aria-label="How to play"
+          >
+            ?
+          </button>
+        </div>
         <StreakCounter streak={streak} />
       </header>
 
@@ -206,6 +216,29 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      {showHowToPlay && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60"
+          onClick={() => setShowHowToPlay(false)}
+        >
+          <div
+            className="bg-white dark:bg-gray-900 rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="text-2xl font-black mb-4">How to play</h2>
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
+              You will be given two random NBA players. Your goal is to guess which player most people think is hotter.
+            </p>
+            <button
+              onClick={() => setShowHowToPlay(false)}
+              className="mt-6 w-full bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded-xl transition-colors"
+            >
+              Got it
+            </button>
+          </div>
+        </div>
+      )}
 
       {showGameOver && (
         <GameOver
