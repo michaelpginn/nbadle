@@ -7,10 +7,10 @@ interface StreakCounterProps {
 export default function StreakCounter({ streak }: StreakCounterProps) {
   return (
     <div className="flex items-center gap-3">
-      <span className="text-gray-400 text-sm uppercase tracking-widest font-semibold">
+      <span className="text-gray-500 dark:text-gray-400 text-sm uppercase tracking-widest font-semibold">
         Streak
       </span>
-      <span className="text-4xl font-black text-white tabular-nums">
+      <span className="text-4xl font-black text-gray-900 dark:text-white tabular-nums">
         {streak}
       </span>
       {streak >= 5 && (

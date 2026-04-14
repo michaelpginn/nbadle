@@ -75,7 +75,7 @@ export default function PlayerCard({
       ? "border-green-400 shadow-green-400/60"
       : state === "wrong"
         ? "border-red-500 shadow-red-500/60"
-        : "border-white/10 shadow-black/30";
+        : "border-gray-200 dark:border-white/10 shadow-gray-300/20 dark:shadow-black/30";
 
   const overlayClass =
     state === "correct"
@@ -94,7 +94,7 @@ export default function PlayerCard({
       disabled={disabled}
       className={`
         relative flex flex-col items-center
-        bg-gray-900 rounded-2xl border-2 ${borderClass}
+        bg-white dark:bg-gray-900 rounded-2xl border-2 ${borderClass}
         shadow-2xl cursor-pointer select-none
         transition-all duration-700
         ${cardOpacity}
@@ -109,9 +109,9 @@ export default function PlayerCard({
       />
 
       {/* Win probability badge */}
-      <div className="h-10 flex items-center justify-center mt-4">
+      <div className="h-10 flex items-center justify-center mt-2 md:mt-4">
         {probabilityRevealed ? (
-          <span className="text-2xl font-bold text-white tracking-wide tabular-nums">
+          <span className="text-2xl font-bold text-gray-900 dark:text-white tracking-wide tabular-nums">
             {displayed.toFixed(1)}%
           </span>
         ) : (
@@ -122,7 +122,7 @@ export default function PlayerCard({
       </div>
 
       {/* Headshot */}
-      <div className="relative w-64 h-48 mx-auto overflow-hidden rounded-xl mt-2">
+      <div className="relative w-full h-24 md:w-64 md:h-48 mx-auto overflow-hidden rounded-xl mt-1 md:mt-2">
         <Image
           src={headshotUrl(player.nbaId)}
           alt={player.name}
@@ -134,9 +134,9 @@ export default function PlayerCard({
       </div>
 
       {/* Name + team */}
-      <div className="py-5 px-4 text-center">
-        <p className="text-xl font-bold text-white">{player.name}</p>
-        <p className="text-sm text-gray-400 mt-1">{player.team}</p>
+      <div className="py-2 md:py-5 px-4 text-center">
+        <p className="text-xl font-bold text-gray-900 dark:text-white">{player.name}</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{player.team}</p>
       </div>
     </button>
   );

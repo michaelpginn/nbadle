@@ -8,13 +8,13 @@ export default function LoginPage({
   searchParams: Promise<{ error?: string }>;
 }) {
   return (
-    <main className="min-h-screen bg-gray-950 text-white flex items-center justify-center px-4">
-      <div className="bg-gray-900 border border-white/10 rounded-3xl shadow-2xl p-10 w-full max-w-sm flex flex-col gap-6">
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white flex items-center justify-center px-4">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-white/10 rounded-3xl shadow-2xl p-10 w-full max-w-sm flex flex-col gap-6">
         <div className="text-center">
           <h1 className="text-2xl font-black tracking-tight">
             NBA<span className="text-orange-400">dle</span>
           </h1>
-          <p className="text-gray-400 text-sm mt-2">Leaderboard access</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Leaderboard access</p>
         </div>
 
         <form action="/api/leaderboard-login" method="POST" className="flex flex-col gap-4">
@@ -23,7 +23,7 @@ export default function LoginPage({
             name="password"
             placeholder="Password"
             autoFocus
-            className="bg-gray-800 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-orange-400 transition-colors"
+            className="bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:border-orange-400 transition-colors"
           />
           <button
             type="submit"

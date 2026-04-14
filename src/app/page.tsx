@@ -159,15 +159,15 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white flex flex-col">
-      <header className="flex items-center justify-between px-8 py-5 border-b border-white/10">
+    <main className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white flex flex-col">
+      <header className="flex items-center justify-between px-8 py-5 border-b border-gray-200 dark:border-white/10">
         <h1 className="text-2xl font-black tracking-tight">
           NBA<span className="text-orange-400">dle</span>
         </h1>
         <StreakCounter streak={streak} />
       </header>
 
-      <div className="flex-1 flex flex-col items-center justify-start gap-8 px-4 py-10">
+      <div className="flex-1 flex flex-col items-center justify-start gap-4 md:gap-8 px-4 py-4 md:py-10">
         <h2 className="text-3xl md:text-4xl font-black text-center tracking-tight">
           Who is hotter???
         </h2>
@@ -177,7 +177,7 @@ export default function Home() {
             <div className="w-12 h-12 border-4 border-orange-400 border-t-transparent rounded-full animate-spin" />
           </div>
         ) : (
-          <div className="flex flex-col md:flex-row items-center justify-center gap-6 md:gap-10 w-full max-w-3xl">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-10 w-full max-w-3xl">
             {player1 && (
               <PlayerCard
                 player={player1}
@@ -189,7 +189,7 @@ export default function Home() {
               />
             )}
 
-            <div className="text-3xl font-black text-gray-500 select-none shrink-0">
+            <div className="text-3xl font-black text-gray-300 dark:text-gray-500 select-none shrink-0">
               vs
             </div>
 
