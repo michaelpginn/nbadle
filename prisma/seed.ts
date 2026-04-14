@@ -45,7 +45,7 @@ async function fetchCommonAllPlayers(season: string): Promise<NBAPlayer[]> {
   const idx = (col: string) => h.indexOf(col);
 
   return rs.rowSet
-    .filter((row) => row[idx("TEAM_ID")] !== 0) // skip unrostered / G-League
+    .filter((row) => Number(row[idx("TEAM_ID")]) !== 0) // skip unrostered / G-League
     .map((row) => {
       const city = String(row[idx("TEAM_CITY")] ?? "");
       const name = String(row[idx("TEAM_NAME")] ?? "");
