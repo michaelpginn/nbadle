@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import Cookies from "js-cookie";
 import PlayerCard, { Player } from "@/components/PlayerCard";
 import StreakCounter from "@/components/StreakCounter";
 import GameOver from "@/components/GameOver";
+import { expectedScore } from "@/lib/elo";
 
 type CardState = "idle" | "correct" | "wrong" | "fading";
 
-interface VoteResult {
-  winnerProbability: number;
-  loserProbability: number;
+interface PlayerPair {
+  player1: Player;
+  player2: Player;
 }
 
 function getBestStreak(): number {
@@ -21,6 +22,12 @@ function saveBestStreak(value: number) {
   Cookies.set("best_streak", String(value), { expires: 365 });
 }
 
+async function fetchRandomPair(): Promise<PlayerPair> {
+  const res = await fetch("/api/players/random");
+  if (!res.ok) throw new Error("Failed to fetch players");
+  return res.json();
+}
+
 export default function Home() {
   const [player1, setPlayer1] = useState<Player | null>(null);
   const [player2, setPlayer2] = useState<Player | null>(null);
@@ -28,125 +35,127 @@ export default function Home() {
   const [disabled, setDisabled] = useState(false);
   const [state1, setState1] = useState<CardState>("idle");
   const [state2, setState2] = useState<CardState>("idle");
-  const [prob1, setProb1] = useState<number | null>(null);
-  const [prob2, setProb2] = useState<number | null>(null);
+  const [prob1, setProb1] = useState<number>(0.5);
+  const [prob2, setProb2] = useState<number>(0.5);
+  const [probsRevealed, setProbsRevealed] = useState(false);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
   const [showGameOver, setShowGameOver] = useState(false);
-  // Track the streak that just ended for the game-over dialog
   const [endedStreak, setEndedStreak] = useState(0);
 
-  const fetchPlayers = useCallback(async () => {
-    setLoading(true);
-    setState1("idle");
-    setState2("idle");
-    setProb1(null);
-    setProb2(null);
-    setDisabled(false);
+  const nextPair = useRef<PlayerPair | null>(null);
+  const prefetching = useRef(false);
 
+  const prefetchNext = useCallback(async () => {
+    if (prefetching.current) return;
+    prefetching.current = true;
     try {
-      const res = await fetch("/api/players/random");
-      const data = await res.json();
-      setPlayer1(data.player1);
-      setPlayer2(data.player2);
-    } catch (err) {
-      console.error("Failed to fetch players", err);
+      nextPair.current = await fetchRandomPair();
+    } catch {
+      nextPair.current = null;
     } finally {
-      setLoading(false);
+      prefetching.current = false;
     }
   }, []);
 
-  // Load best streak from cookie on mount
+  const displayPair = useCallback(
+    (pair: PlayerPair) => {
+      setPlayer1(pair.player1);
+      setPlayer2(pair.player2);
+      // Compute probabilities immediately from ELO — no round trip needed
+      const p1 = expectedScore(pair.player1.elo, pair.player2.elo);
+      setProb1(p1);
+      setProb2(1 - p1);
+      setState1("idle");
+      setState2("idle");
+      setDisabled(false);
+      setProbsRevealed(false);
+      setLoading(false);
+      // Prefetch next pair in the background while the user decides
+      prefetchNext();
+    },
+    [prefetchNext]
+  );
+
+  const advance = useCallback(async () => {
+    if (nextPair.current) {
+      const pair = nextPair.current;
+      nextPair.current = null;
+      displayPair(pair);
+    } else {
+      setLoading(true);
+      try {
+        displayPair(await fetchRandomPair());
+      } catch (err) {
+        console.error("Failed to fetch players", err);
+        setLoading(false);
+      }
+    }
+  }, [displayPair]);
+
   useEffect(() => {
     setBestStreak(getBestStreak());
-    fetchPlayers();
-  }, [fetchPlayers]);
+    advance();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handleVote = async (pickedPlayer: Player, otherPlayer: Player) => {
+  const handleVote = (pickedPlayer: Player, otherPlayer: Player) => {
     if (disabled || !player1 || !player2) return;
     setDisabled(true);
 
-    // Determine which player had higher ELO before the vote
     const pickedIsHigher = pickedPlayer.elo >= otherPlayer.elo;
+    const pickedIsP1 = pickedPlayer.id === player1.id;
+    setProbsRevealed(true);
 
-    try {
-      const res = await fetch("/api/vote", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          winnerId: pickedPlayer.id,
-          loserId: otherPlayer.id,
-        }),
+    // Fire-and-forget — ELO update happens in the background
+    fetch("/api/vote", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        winnerId: pickedPlayer.id,
+        loserId: otherPlayer.id,
+      }),
+    }).catch(console.error);
+
+    if (pickedIsHigher) {
+      setStreak((prev) => {
+        const next = prev + 1;
+        if (next > getBestStreak()) {
+          saveBestStreak(next);
+          setBestStreak(next);
+        }
+        return next;
       });
 
-      const result: VoteResult = await res.json();
+      setState1(pickedIsP1 ? "correct" : "fading");
+      setState2(pickedIsP1 ? "fading" : "correct");
 
-      // Map probabilities back to card positions
-      const pickedIsP1 = pickedPlayer.id === player1.id;
-      if (pickedIsP1) {
-        setProb1(result.winnerProbability);
-        setProb2(result.loserProbability);
-      } else {
-        setProb1(result.loserProbability);
-        setProb2(result.winnerProbability);
-      }
+      setTimeout(() => {
+        setState1("fading");
+        setState2("fading");
+        setTimeout(advance, 500);
+      }, 1000);
+    } else {
+      setState1(pickedIsP1 ? "wrong" : "idle");
+      setState2(pickedIsP1 ? "idle" : "wrong");
 
-      if (pickedIsHigher) {
-        // Correct answer
-        setStreak((prev) => {
-          const newStreak = prev + 1;
-          const currentBest = getBestStreak();
-          if (newStreak > currentBest) {
-            saveBestStreak(newStreak);
-            setBestStreak(newStreak);
-          }
-          return newStreak;
-        });
+      setStreak((prev) => {
+        setEndedStreak(prev);
+        return 0;
+      });
 
-        if (pickedIsP1) {
-          setState1("correct");
-          setState2("fading");
-        } else {
-          setState2("correct");
-          setState1("fading");
-        }
-
-        // After 1s highlight, fade both out and load next pair
-        setTimeout(() => {
-          setState1("fading");
-          setState2("fading");
-          setTimeout(fetchPlayers, 500);
-        }, 1000);
-      } else {
-        // Wrong answer
-        if (pickedIsP1) {
-          setState1("wrong");
-        } else {
-          setState2("wrong");
-        }
-
-        setStreak((prev) => {
-          setEndedStreak(prev);
-          return 0;
-        });
-        setShowGameOver(true);
-      }
-    } catch (err) {
-      console.error("Vote failed", err);
-      setDisabled(false);
+      // Show the wrong highlight + percentages for 2s before the dialog
+      setTimeout(() => setShowGameOver(true), 2000);
     }
   };
 
   const handleRestart = () => {
     setShowGameOver(false);
-    setState1("idle");
-    setState2("idle");
-    fetchPlayers();
+    advance();
   };
 
   return (
     <main className="min-h-screen bg-gray-950 text-white flex flex-col">
-      {/* Header */}
       <header className="flex items-center justify-between px-8 py-5 border-b border-white/10">
         <h1 className="text-2xl font-black tracking-tight">
           NBA<span className="text-orange-400">dle</span>
@@ -154,7 +163,6 @@ export default function Home() {
         <StreakCounter streak={streak} />
       </header>
 
-      {/* Game area */}
       <div className="flex-1 flex flex-col items-center justify-center gap-8 px-4 py-10">
         <h2 className="text-3xl md:text-4xl font-black text-center tracking-tight">
           Who is hotter???
@@ -171,6 +179,7 @@ export default function Home() {
                 player={player1}
                 state={state1}
                 probability={prob1}
+                probabilityRevealed={probsRevealed}
                 onClick={() => handleVote(player1, player2!)}
                 disabled={disabled}
               />
@@ -185,6 +194,7 @@ export default function Home() {
                 player={player2}
                 state={state2}
                 probability={prob2}
+                probabilityRevealed={probsRevealed}
                 onClick={() => handleVote(player2, player1!)}
                 disabled={disabled}
               />

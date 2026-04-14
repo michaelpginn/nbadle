@@ -16,7 +16,8 @@ type CardState = "idle" | "correct" | "wrong" | "fading";
 interface PlayerCardProps {
   player: Player;
   state: CardState;
-  probability: number | null;
+  probability: number;
+  probabilityRevealed: boolean;
   onClick: () => void;
   disabled: boolean;
 }
@@ -28,6 +29,7 @@ export default function PlayerCard({
   player,
   state,
   probability,
+  probabilityRevealed,
   onClick,
   disabled,
 }: PlayerCardProps) {
@@ -69,12 +71,14 @@ export default function PlayerCard({
 
       {/* Win probability badge */}
       <div className="h-10 flex items-center justify-center mt-4">
-        {probability !== null ? (
+        {probabilityRevealed ? (
           <span className="text-2xl font-bold text-white tracking-wide">
             {(probability * 100).toFixed(1)}%
           </span>
         ) : (
-          <span className="text-transparent text-2xl font-bold">—</span>
+          <span className="text-2xl font-bold text-transparent select-none">
+            —
+          </span>
         )}
       </div>
 
