@@ -7,7 +7,7 @@ import StreakCounter from "@/components/StreakCounter";
 import GameOver from "@/components/GameOver";
 import { expectedScore } from "@/lib/elo";
 import Link from "next/link";
-import { Medal } from "lucide-react";
+import { Medal, CircleQuestionMark } from "lucide-react";
 
 type CardState = "idle" | "correct" | "wrong" | "fading";
 
@@ -170,34 +170,31 @@ export default function Home() {
           </h1>
           <button
             onClick={() => setShowHowToPlay(true)}
-            className="md:hidden w-5 h-5 rounded-full border-2 border-gray-400 dark:border-gray-500 text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
+            className="md:hidden  text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center  hover:text-orange-400 transition-colors"
             aria-label="How to play"
           >
-            ?
+            <CircleQuestionMark size={20} />
           </button>
           <Link
             href="/leaderboard"
-            className="md:hidden  text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
+            className="md:hidden  text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center  hover:text-orange-400 transition-colors"
           >
             <Medal size={20} />
           </Link>
         </div>
-        <div className="gap-4 hidden md:flex">
+        <div className="gap-5 hidden md:flex">
           <button
             onClick={() => setShowHowToPlay(true)}
             className="rounded-full  text-gray-400 dark:text-gray-500 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer"
             aria-label="How to play"
           >
-            How to Play
+            <CircleQuestionMark size={15} className="mr-1" /> How to Play
           </button>
-          <p className="text-gray-400 dark:text-gray-500 text-sm font-bold">
-            •
-          </p>
           <Link
             href="/leaderboard"
             className="text-gray-400 dark:text-gray-500 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
           >
-            Leaderboard
+            <Medal size={15} className="mr-1" /> Leaderboard
           </Link>
         </div>
         <div className="flex-1 flex justify-end">
