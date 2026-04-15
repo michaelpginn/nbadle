@@ -23,18 +23,12 @@ export default async function LeaderboardPage() {
         </h1>
       </header>
 
-      <div className="mx-auto">
-        <div className="flex justify-center">
-          <div className="min-w-100">
-            <LeaderboardSection players={players.slice(0, 10)} title="Top 10" />
-          </div>
-          <div className="min-w-100">
-            <LeaderboardSection
-              players={players.slice(-10)}
-              title="Bottom 10"
-            />
-          </div>
-        </div>
+      <div className="max-w-2xl mx-auto">
+        <LeaderboardSection
+          players={players}
+          title={`${players.length} players`}
+          showDetails
+        />
       </div>
     </main>
   );

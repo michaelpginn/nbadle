@@ -6,6 +6,7 @@ import PlayerCard, { Player } from "@/components/PlayerCard";
 import StreakCounter from "@/components/StreakCounter";
 import GameOver from "@/components/GameOver";
 import { expectedScore } from "@/lib/elo";
+import Link from "next/link";
 
 type CardState = "idle" | "correct" | "wrong" | "fading";
 
@@ -162,19 +163,30 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white flex flex-col">
       <header className="flex items-center justify-between px-8 py-5 border-b border-gray-200 dark:border-white/10">
-        <div className="flex items-center gap-2">
+        <div className="flex-1 flex items-center gap-2">
           <h1 className="text-2xl font-black tracking-tight">
             NBA<span className="text-orange-400">dle</span>
           </h1>
+        </div>
+        <div className="flex gap-4">
           <button
             onClick={() => setShowHowToPlay(true)}
-            className="w-5 h-5 rounded-full border-2 border-gray-400 dark:border-gray-500 text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
+            className="text-gray-400 dark:text-gray-500 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer"
             aria-label="How to play"
           >
-            ?
+            How to Play
           </button>
+          <p>•</p>
+          <Link
+            href="/leaderboard"
+            className="text-gray-400 dark:text-gray-500 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
+          >
+            Leaderboard
+          </Link>
         </div>
-        <StreakCounter streak={streak} />
+        <div className="flex-1 flex justify-end">
+          <StreakCounter streak={streak} />
+        </div>
       </header>
 
       <div className="flex-1 min-h-0 flex flex-col items-center justify-start gap-4 md:gap-8 px-4 py-4 md:py-10">
@@ -228,11 +240,12 @@ export default function Home() {
           >
             <h2 className="text-2xl font-black mb-4">How to play</h2>
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-              You will be given two random NBA players. Your goal is to guess which player most people think is hotter.
+              You will be given two random NBA players. Your goal is to guess
+              which player most people think is hotter.
             </p>
             <button
               onClick={() => setShowHowToPlay(false)}
-              className="mt-6 w-full bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded-xl transition-colors"
+              className="mt-6 w-full bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded-xl transition-colors cursor-pointer"
             >
               Got it
             </button>
