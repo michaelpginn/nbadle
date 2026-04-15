@@ -1,6 +1,6 @@
 import LeaderboardSection, {
   getPlayersRanked,
-} from "../../components/leaderboard_section";
+} from "../../components/LeaderboardSection";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";

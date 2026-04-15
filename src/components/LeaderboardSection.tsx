@@ -33,12 +33,14 @@ interface LeaderboardSectionProps {
   players: RankedPlayer[];
   title: string;
   showDetails?: boolean;
+  smallImages?: boolean;
 }
 
 export default function LeaderboardSection({
   players,
   title,
   showDetails,
+  smallImages,
 }: LeaderboardSectionProps) {
   return (
     <div className="w-full h-full px-4 py-8">
@@ -59,7 +61,9 @@ export default function LeaderboardSection({
             </div>
 
             {/* Photo */}
-            <div className="relative w-12 h-9 shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-800">
+            <div
+              className={`${smallImages ? "w-12 h-9" : "w-24 h-18"} relative shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-800`}
+            >
               <Image
                 src={headshotUrl(player.nbaId)}
                 alt={player.name}

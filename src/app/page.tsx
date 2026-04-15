@@ -167,16 +167,25 @@ export default function Home() {
           <h1 className="text-2xl font-black tracking-tight">
             NBA<span className="text-orange-400">dle</span>
           </h1>
-        </div>
-        <div className="flex gap-4">
           <button
             onClick={() => setShowHowToPlay(true)}
-            className="text-gray-400 dark:text-gray-500 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer"
+            className="md:hidden w-5 h-5 rounded-full border-2 border-gray-400 dark:border-gray-500 text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
+            aria-label="How to play"
+          >
+            ?
+          </button>
+        </div>
+        <div className="gap-4 hidden md:flex">
+          <button
+            onClick={() => setShowHowToPlay(true)}
+            className="rounded-full  text-gray-400 dark:text-gray-500 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer"
             aria-label="How to play"
           >
             How to Play
           </button>
-          <p>•</p>
+          <p className="text-gray-400 dark:text-gray-500 text-sm font-bold">
+            •
+          </p>
           <Link
             href="/leaderboard"
             className="text-gray-400 dark:text-gray-500 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
@@ -228,6 +237,15 @@ export default function Home() {
           </div>
         )}
       </div>
+
+      <footer className="md:hidden flex my-8 px-4 justify-center">
+        <Link
+          href="/leaderboard"
+          className=" bg-gray-200 dark:bg-gray-800 py-2 px-4 rounded-full text-gray-600 dark:text-gray-400 text-sm font-bold flex items-center justify-center hover:bg-gray-300 hover:dark:bg-gray-700 transition-colors"
+        >
+          Current Leaderboard
+        </Link>
+      </footer>
 
       {showHowToPlay && (
         <div
