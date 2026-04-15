@@ -51,7 +51,7 @@ export default async function LeaderboardPage() {
           <div style={{ maxWidth: 450 }}>
             <LeaderboardSection
               players={players.slice(-10)}
-              title="Bottom 10"
+              title="Chopped 10"
             />
           </div>
         </div>

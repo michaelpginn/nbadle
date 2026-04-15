@@ -44,7 +44,7 @@ export default function LeaderboardSection({
 }: LeaderboardSectionProps) {
   return (
     <div className="w-full h-full px-4 py-8">
-      <p className="text-lg dark:text-white mb-4 font-bold text-center">
+      <p className="text-xl dark:text-white mb-4 font-bold text-center">
         {title}
       </p>
       <ol className="flex flex-col gap-2">
