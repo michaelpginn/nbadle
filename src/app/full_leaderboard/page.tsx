@@ -28,6 +28,7 @@ export default async function LeaderboardPage() {
           players={players}
           title={`${players.length} players`}
           showDetails
+          smallImages
         />
       </div>
     </main>
