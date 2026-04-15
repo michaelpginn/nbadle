@@ -7,6 +7,7 @@ import StreakCounter from "@/components/StreakCounter";
 import GameOver from "@/components/GameOver";
 import { expectedScore } from "@/lib/elo";
 import Link from "next/link";
+import { Medal } from "lucide-react";
 
 type CardState = "idle" | "correct" | "wrong" | "fading";
 
@@ -163,7 +164,7 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white flex flex-col">
       <header className="flex items-center justify-between px-8 py-5 border-b border-gray-200 dark:border-white/10">
-        <div className="flex-1 flex items-center gap-2">
+        <div className="flex-1 flex items-center gap-3">
           <h1 className="text-2xl font-black tracking-tight">
             NBA<span className="text-orange-400">dle</span>
           </h1>
@@ -174,6 +175,12 @@ export default function Home() {
           >
             ?
           </button>
+          <Link
+            href="/leaderboard"
+            className="md:hidden  text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
+          >
+            <Medal size={20} />
+          </Link>
         </div>
         <div className="gap-4 hidden md:flex">
           <button
@@ -199,10 +206,11 @@ export default function Home() {
       </header>
 
       <div className="flex-1 min-h-0 flex flex-col items-center justify-start gap-4 md:gap-8 px-4 py-4 md:py-10">
-        <h2 className="text-3xl md:text-4xl font-black text-center tracking-tight">
-          Who is hotter???
-        </h2>
-
+        <div className="flex items-center flex-col">
+          <h2 className="text-3xl md:text-4xl font-black text-center tracking-tight">
+            Who is hotter???
+          </h2>
+        </div>
         {loading ? (
           <div className="flex items-center justify-center h-64">
             <div className="w-12 h-12 border-4 border-orange-400 border-t-transparent rounded-full animate-spin" />
@@ -237,15 +245,6 @@ export default function Home() {
           </div>
         )}
       </div>
-
-      <footer className="md:hidden flex my-8 px-4 justify-center">
-        <Link
-          href="/leaderboard"
-          className=" bg-gray-200 dark:bg-gray-800 py-2 px-4 rounded-full text-gray-600 dark:text-gray-400 text-sm font-bold flex items-center justify-center hover:bg-gray-300 hover:dark:bg-gray-700 transition-colors"
-        >
-          Current Leaderboard
-        </Link>
-      </footer>
 
       {showHowToPlay && (
         <div
