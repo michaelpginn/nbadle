@@ -7,12 +7,12 @@ export async function POST(req: NextRequest) {
 
   if (!correct || password !== correct) {
     return NextResponse.redirect(
-      new URL("/leaderboard/login?error=1", req.url),
-      { status: 303 }
+      new URL("/full_leaderboard/login?error=1", req.url),
+      { status: 303 },
     );
   }
 
-  const res = NextResponse.redirect(new URL("/leaderboard", req.url), {
+  const res = NextResponse.redirect(new URL("/full_leaderboard", req.url), {
     status: 303,
   });
 

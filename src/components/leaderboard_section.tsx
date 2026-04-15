@@ -1,7 +1,5 @@
 import Image from "next/image";
 import { getPrisma } from "@/lib/prisma";
-import Link from "next/link";
-import { Player } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
