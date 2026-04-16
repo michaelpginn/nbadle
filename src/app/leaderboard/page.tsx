@@ -54,7 +54,7 @@ export default async function LeaderboardPage() {
           </Link>
           <Link
             href="/leaderboard"
-            className="md:hidden text-orange-500 dark:text-orange-300 text-xs font-bold flex items-center justify-center hover:text-orange-400 transition-colors"
+            className="md:hidden ttext-gray-600 dark:text-gray-300 text-xs font-bold flex items-center justify-center hover:text-orange-400 transition-colors"
             aria-label="Leaderboard"
           >
             <Trophy size={20} />
@@ -76,7 +76,7 @@ export default async function LeaderboardPage() {
           </Link>
           <Link
             href="/leaderboard"
-            className="text-orange-500 dark:text-orange-300 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
+            className="text-gray-600 dark:text-gray-300 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
           >
             <Trophy size={15} className="mr-1" /> Leaderboard
           </Link>

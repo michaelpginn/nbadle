@@ -31,7 +31,7 @@ export default async function StatsPage() {
           </Link>
           <Link
             href="/stats"
-            className="md:hidden text-orange-500 dark:text-orange-300 text-xs font-bold flex items-center justify-center hover:text-orange-400 transition-colors"
+            className="md:hidden text-gray-600 dark:text-gray-300 text-xs font-bold flex items-center justify-center hover:text-orange-400 transition-colors"
             aria-label="Stats"
           >
             <BarChart2 size={20} />
@@ -52,7 +52,7 @@ export default async function StatsPage() {
           </Link>
           <Link
             href="/stats"
-            className="text-orange-500 dark:text-orange-300 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
+            className="text-gray-500 dark:text-gray-400 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
           >
             <BarChart2 size={15} className="mr-1" /> Stats
           </Link>
