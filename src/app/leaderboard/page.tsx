@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getPrisma } from "@/lib/prisma";
+import { BarChart2, Trophy } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -21,7 +22,11 @@ function formatWeekRange(monday: Date): string {
   const sunday = new Date(monday);
   sunday.setUTCDate(monday.getUTCDate() + 6);
   const fmt = (d: Date) =>
-    d.toLocaleDateString("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
+    d.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    });
   return `${fmt(monday)} – ${fmt(sunday)}`;
 }
 
@@ -43,17 +48,43 @@ export default async function LeaderboardPage() {
         className="flex items-center px-8 py-5 border-b border-gray-200 dark:border-white/10"
         style={{ minHeight: 81 }}
       >
-        <div className="flex-1">
+        <div className="flex-1 flex items-center gap-3">
           <Link href="/" className="text-2xl font-black tracking-tight">
             NBA<span className="text-orange-400">dle</span>
           </Link>
+          <Link
+            href="/leaderboard"
+            className="md:hidden text-orange-500 dark:text-orange-300 text-xs font-bold flex items-center justify-center hover:text-orange-400 transition-colors"
+            aria-label="Leaderboard"
+          >
+            <Trophy size={20} />
+          </Link>
+          <Link
+            href="/stats"
+            className="md:hidden text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center hover:text-orange-400 transition-colors"
+            aria-label="Stats"
+          >
+            <BarChart2 size={20} />
+          </Link>
         </div>
-        <div className="gap-4 items-center hidden md:flex">
+        <div className="gap-5 items-center hidden md:flex">
           <Link
             href="/"
             className="text-gray-400 dark:text-gray-500 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
           >
             &larr; Back
+          </Link>
+          <Link
+            href="/leaderboard"
+            className="text-orange-500 dark:text-orange-300 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
+          >
+            <Trophy size={15} className="mr-1" /> Leaderboard
+          </Link>
+          <Link
+            href="/stats"
+            className="text-gray-400 dark:text-gray-500 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
+          >
+            <BarChart2 size={15} className="mr-1" /> Stats
           </Link>
         </div>
         <div className="flex-1" />
@@ -66,9 +97,7 @@ export default async function LeaderboardPage() {
             <p className="text-xs font-bold tracking-[0.3em] uppercase text-orange-400 mb-1">
               Weekly
             </p>
-            <h1 className="text-4xl font-black tracking-tight">
-              High Scores
-            </h1>
+            <h1 className="text-4xl font-black tracking-tight">High Scores</h1>
             <p className="text-xs text-gray-400 dark:text-gray-500 mt-2 font-mono">
               {formatWeekRange(weekOf)}
             </p>
@@ -78,9 +107,15 @@ export default async function LeaderboardPage() {
           <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-white/10 shadow-xl overflow-hidden">
             {/* Column headers */}
             <div className="flex items-center px-5 py-2 border-b border-gray-100 dark:border-white/5">
-              <span className="w-8 text-xs font-bold text-gray-400 dark:text-gray-600 font-mono">#</span>
-              <span className="flex-1 text-xs font-bold text-gray-400 dark:text-gray-600 tracking-widest uppercase">Name</span>
-              <span className="text-xs font-bold text-gray-400 dark:text-gray-600 tracking-widest uppercase">Streak</span>
+              <span className="w-8 text-xs font-bold text-gray-400 dark:text-gray-600 font-mono">
+                #
+              </span>
+              <span className="flex-1 text-xs font-bold text-gray-400 dark:text-gray-600 tracking-widest uppercase">
+                Name
+              </span>
+              <span className="text-xs font-bold text-gray-400 dark:text-gray-600 tracking-widest uppercase">
+                Streak
+              </span>
             </div>
 
             {slots.map((entry, i) => (
@@ -107,7 +142,9 @@ export default async function LeaderboardPage() {
                 {/* Streak */}
                 <span
                   className={`font-mono text-xl font-black tabular-nums ${
-                    entry ? "text-orange-400" : "text-gray-200 dark:text-gray-800"
+                    entry
+                      ? "text-orange-400"
+                      : "text-gray-200 dark:text-gray-800"
                   }`}
                 >
                   {entry ? entry.streak : "—"}

@@ -26,7 +26,7 @@ export default function StatsContainer({
     <div className="flex flex-col items-center py-12">
       <div className="w-full max-w-lg mx-auto">
         {/* Header */}
-        <div className="text-center mb-4">
+        <div className="text-center mb-8">
           <p className="text-xs font-bold tracking-[0.3em] uppercase text-orange-400 mb-1">
             Overall
           </p>
@@ -36,7 +36,7 @@ export default function StatsContainer({
               onClick={() => {
                 setCurrentStat("top10");
               }}
-              className={`${currentStat == "top10" ? "text-orange-300" : "text-gray-400 dark:text-gray-500"} text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer`}
+              className={`${currentStat == "top10" ? "text-orange-500 dark:text-orange-300" : "text-gray-400 dark:text-gray-500"} text-xs font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer`}
             >
               Top 10
             </button>
@@ -44,7 +44,7 @@ export default function StatsContainer({
               onClick={() => {
                 setCurrentStat("chop10");
               }}
-              className={`${currentStat == "chop10" ? "text-orange-300" : "text-gray-400 dark:text-gray-500"} text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer`}
+              className={`${currentStat == "chop10" ? "text-orange-500 dark:text-orange-300" : "text-gray-400 dark:text-gray-500"} text-xs font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer`}
             >
               Chopped 10
             </button>
@@ -52,7 +52,7 @@ export default function StatsContainer({
               onClick={() => {
                 setCurrentStat("top5teams");
               }}
-              className={`${currentStat == "top5teams" ? "text-orange-300" : "text-gray-400 dark:text-gray-500"} text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer`}
+              className={`${currentStat == "top5teams" ? "text-orange-500 dark:text-orange-300" : "text-gray-400 dark:text-gray-500"} text-xs font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer`}
             >
               Top Teams
             </button>
@@ -60,7 +60,7 @@ export default function StatsContainer({
               onClick={() => {
                 setCurrentStat("chop5teams");
               }}
-              className={`${currentStat == "chop5teams" ? "text-orange-300" : "text-gray-400 dark:text-gray-500"} text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer`}
+              className={`${currentStat == "chop5teams" ? "text-orange-500 dark:text-orange-300" : "text-gray-400 dark:text-gray-500"} text-xs font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer`}
             >
               Chopped Teams
             </button>
