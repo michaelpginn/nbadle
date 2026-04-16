@@ -8,6 +8,7 @@ import GameOver from "@/components/GameOver";
 import { expectedScore } from "@/lib/elo";
 import Link from "next/link";
 import { Medal, CircleQuestionMark } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 type CardState = "idle" | "correct" | "wrong" | "fading";
 
@@ -26,6 +27,12 @@ function saveBestStreak(value: number) {
 
 async function fetchRandomPair(): Promise<PlayerPair> {
   const res = await fetch("/api/players/random");
+  if (!res.ok) throw new Error("Failed to fetch players");
+  return res.json();
+}
+
+async function fetchPair(p1Id: string, p2Id: string): Promise<PlayerPair> {
+  const res = await fetch(`/api/players?p1=${p1Id}&p2=${p2Id}`);
   if (!res.ok) throw new Error("Failed to fetch players");
   return res.json();
 }
@@ -50,6 +57,7 @@ export default function Home() {
 
   const nextPair = useRef<PlayerPair | null>(null);
   const prefetching = useRef(false);
+  const searchParams = useSearchParams();
 
   const prefetchNext = useCallback(async () => {
     if (prefetching.current) return;
@@ -82,25 +90,34 @@ export default function Home() {
     [prefetchNext],
   );
 
-  const advance = useCallback(async () => {
-    if (nextPair.current) {
-      const pair = nextPair.current;
-      nextPair.current = null;
-      displayPair(pair);
-    } else {
-      setLoading(true);
-      try {
-        displayPair(await fetchRandomPair());
-      } catch (err) {
-        console.error("Failed to fetch players", err);
-        setLoading(false);
+  const advance = useCallback(
+    async (p1Id?: string | null, p2Id?: string | null) => {
+      if (nextPair.current) {
+        const pair = nextPair.current;
+        nextPair.current = null;
+        displayPair(pair);
+      } else {
+        setLoading(true);
+        try {
+          if (p1Id && p2Id) {
+            displayPair(await fetchPair(p1Id, p2Id));
+          } else {
+            displayPair(await fetchRandomPair());
+          }
+        } catch (err) {
+          console.error("Failed to fetch players", err);
+          setLoading(false);
+        }
       }
-    }
-  }, [displayPair]);
+    },
+    [displayPair],
+  );
 
   useEffect(() => {
     setBestStreak(getBestStreak());
-    advance();
+    const p1Id = searchParams.get("p1");
+    const p2Id = searchParams.get("p2");
+    advance(p1Id, p2Id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
