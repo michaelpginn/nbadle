@@ -8,7 +8,6 @@ import GameOver from "@/components/GameOver";
 import { expectedScore } from "@/lib/elo";
 import Link from "next/link";
 import { Medal, CircleQuestionMark } from "lucide-react";
-import { useSearchParams } from "next/navigation";
 
 type CardState = "idle" | "correct" | "wrong" | "fading";
 
@@ -57,7 +56,6 @@ export default function Home() {
 
   const nextPair = useRef<PlayerPair | null>(null);
   const prefetching = useRef(false);
-  const searchParams = useSearchParams();
 
   const prefetchNext = useCallback(async () => {
     if (prefetching.current) return;
@@ -115,8 +113,9 @@ export default function Home() {
 
   useEffect(() => {
     setBestStreak(getBestStreak());
-    const p1Id = searchParams.get("p1");
-    const p2Id = searchParams.get("p2");
+    const params = new URLSearchParams(window.location.search);
+    const p1Id = params.get("p1");
+    const p2Id = params.get("p2");
     advance(p1Id, p2Id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
