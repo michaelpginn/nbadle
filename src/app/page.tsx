@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import Cookies from "js-cookie";
-import PlayerCard, { Player } from "@/components/PlayerCard";
+import PlayerCard, { MiniPlayerCard, Player } from "@/components/PlayerCard";
 import StreakCounter from "@/components/StreakCounter";
 import GameOver from "@/components/GameOver";
 import { expectedScore } from "@/lib/elo";
@@ -37,6 +37,8 @@ export default function Home() {
   const [disabled, setDisabled] = useState(false);
   const [state1, setState1] = useState<CardState>("idle");
   const [state2, setState2] = useState<CardState>("idle");
+  const [lastState1, setLastState1] = useState<CardState>("idle");
+  const [lastState2, setLastState2] = useState<CardState>("idle");
   const [prob1, setProb1] = useState<number>(0.5);
   const [prob2, setProb2] = useState<number>(0.5);
   const [probsRevealed, setProbsRevealed] = useState(false);
@@ -132,6 +134,8 @@ export default function Home() {
 
       setState1(pickedIsP1 ? "correct" : "idle");
       setState2(pickedIsP1 ? "idle" : "correct");
+      setLastState1(pickedIsP1 ? "correct" : "idle");
+      setLastState2(pickedIsP1 ? "idle" : "correct");
 
       setTimeout(() => {
         setState1("fading");
@@ -141,13 +145,15 @@ export default function Home() {
     } else {
       setState1(pickedIsP1 ? "wrong" : "idle");
       setState2(pickedIsP1 ? "idle" : "wrong");
+      setLastState1(pickedIsP1 ? "wrong" : "idle");
+      setLastState2(pickedIsP1 ? "idle" : "wrong");
 
       setStreak((prev) => {
         setEndedStreak(prev);
         return 0;
       });
 
-      // Show wrong highlight for 1s, then fade out, then show dialog
+      // Show wrong highlight for 2s, then fade out, then show dialog
       setTimeout(() => {
         setState1("fading");
         setState2("fading");
@@ -267,11 +273,25 @@ export default function Home() {
         </div>
       )}
 
-      {showGameOver && (
+      {showGameOver && player1 && player2 && (
         <GameOver
           streak={endedStreak}
           bestStreak={bestStreak}
           onRestart={handleRestart}
+          player1Card={
+            <MiniPlayerCard
+              player={player1}
+              state={lastState1}
+              probability={prob1}
+            />
+          }
+          player2Card={
+            <MiniPlayerCard
+              player={player2}
+              state={lastState2}
+              probability={prob2}
+            />
+          }
         />
       )}
     </main>

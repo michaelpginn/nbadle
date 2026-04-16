@@ -135,9 +135,86 @@ export default function PlayerCard({
 
       {/* Name + team */}
       <div className="py-2 md:py-5 px-4 text-center">
-        <p className="text-xl font-bold text-gray-900 dark:text-white">{player.name}</p>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{player.team}</p>
+        <p className="text-xl font-bold text-gray-900 dark:text-white">
+          {player.name}
+        </p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          {player.team}
+        </p>
       </div>
     </button>
+  );
+}
+
+interface MiniPlayerCardProps {
+  player: Player;
+  state: CardState;
+  probability: number;
+}
+
+export function MiniPlayerCard({
+  player,
+  state,
+  probability,
+}: MiniPlayerCardProps) {
+  const borderClass =
+    state === "correct"
+      ? "border-green-400 shadow-green-400/60"
+      : state === "wrong"
+        ? "border-red-500 shadow-red-500/60"
+        : "border-gray-200 dark:border-white/10 shadow-gray-300/20 dark:shadow-black/30";
+
+  const overlayClass =
+    state === "correct"
+      ? "bg-green-400/20"
+      : state === "wrong"
+        ? "bg-red-500/20"
+        : "bg-transparent";
+
+  return (
+    <div
+      className={`
+        relative flex flex-col items-center
+        bg-white dark:bg-gray-900 rounded-2xl border-2 ${borderClass}
+        shadow-2xl select-none
+        transition-all duration-700
+        w-full max-w-sm md:flex-none
+        group
+      `}
+    >
+      {/* Coloured overlay */}
+      <div
+        className={`absolute inset-0 rounded-2xl transition-colors duration-300 pointer-events-none z-10 ${overlayClass}`}
+      />
+
+      {/* Win probability badge */}
+      <div className="h-10 flex items-center justify-center mt-2 md:mt-4">
+        <span className="text-2xl font-bold text-gray-900 dark:text-white tracking-wide tabular-nums">
+          {(probability * 100).toFixed(1)}%
+        </span>
+      </div>
+
+      {/* Headshot */}
+      <div className="relative w-full h-24 flex-none md:w-64 md:h-48 mx-auto overflow-hidden rounded-xl mt-1 md:mt-2">
+        <Image
+          src={headshotUrl(player.nbaId)}
+          alt={player.name}
+          fill
+          className="object-contain md:object-cover object-top"
+          unoptimized
+          priority
+        />
+      </div>
+
+      {/* Name + team */}
+      <div className="py-2 md:py-5 px-4 text-center">
+        <p className="text-sm font-bold text-gray-900 dark:text-white">
+          {player.name}
+        </p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          {player.team}
+        </p>
+      </div>
+    </div>
   );
 }

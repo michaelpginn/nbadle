@@ -1,22 +1,31 @@
 "use client";
 
+import { Component, ReactElement } from "react";
+
 interface GameOverProps {
   streak: number;
   bestStreak: number;
   onRestart: () => void;
+  player1Card: ReactElement;
+  player2Card: ReactElement;
 }
 
 export default function GameOver({
   streak,
   bestStreak,
   onRestart,
+  player1Card,
+  player2Card,
 }: GameOverProps) {
   const isNewBest = streak > 0 && streak >= bestStreak;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-white/10 rounded-3xl shadow-2xl p-10 max-w-sm w-full text-center flex flex-col gap-6 animate-in fade-in zoom-in duration-200">
-        <div className="text-6xl">😬</div>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-white/10 rounded-3xl shadow-2xl p-4 md:p-10 max-w-sm w-full text-center flex flex-col gap-6 animate-in fade-in zoom-in duration-200">
+        <div className="flex items-center justify-center gap-3 md:gap-10 flex-1 min-h-0 md:flex-none">
+          {player1Card}
+          {player2Card}
+        </div>
         <h2 className="text-3xl font-black text-gray-900 dark:text-white">
           Game Over
         </h2>
