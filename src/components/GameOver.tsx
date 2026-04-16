@@ -24,10 +24,15 @@ export default function GameOver({
 }: GameOverProps) {
   const isNewBest = streak > 0 && streak >= bestStreak;
 
-  const [username, setUsername] = useState(() => Cookies.get(COOKIE) ?? "");
+  const [username, setUsername] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const saved = Cookies.get(COOKIE);
+    if (saved) setUsername(saved);
+  }, []);
 
   useEffect(() => {
     if (madeLeaderboard && !submitted) {

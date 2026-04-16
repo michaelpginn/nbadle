@@ -1,4 +1,5 @@
-import StatSection, { getStats } from "@/components/StatSection";
+import StatSection from "@/components/StatSection";
+import { getStats } from "@/lib/stats";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
