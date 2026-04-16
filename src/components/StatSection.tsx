@@ -29,10 +29,10 @@ export default function StatSection({
   smallImages,
 }: StatSectionProps) {
   if (!players && !teams) {
-    return <div className="w-full h-full px-4 py-8" />;
+    return <div className="w-full h-full px-4" />;
   }
   return (
-    <div className="w-full h-full px-4 py-8">
+    <div className="w-full h-full px-4">
       {players && (
         <ol className="flex flex-col gap-2">
           {players.map((player) => (

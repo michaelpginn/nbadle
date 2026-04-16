@@ -23,45 +23,50 @@ export default function StatsContainer({
   const title = titles[currentStat];
 
   return (
-    <div className="mx-auto py-4 md:py-10 max-w-xl">
-      <div className="flex justify-center flex-col ">
-        <h2 className="text-3xl dark:text-white mb-4 font-black text-center">
-          {title}
-        </h2>
-        <div className="flex flex-row gap-4 justify-center">
-          <button
-            onClick={() => {
-              setCurrentStat("top10");
-            }}
-            className={`${currentStat == "top10" ? "text-orange-300" : "text-gray-400 dark:text-gray-500"} text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer`}
-          >
-            Top 10
-          </button>
-          <button
-            onClick={() => {
-              setCurrentStat("chop10");
-            }}
-            className={`${currentStat == "chop10" ? "text-orange-300" : "text-gray-400 dark:text-gray-500"} text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer`}
-          >
-            Chopped 10
-          </button>
-          <button
-            onClick={() => {
-              setCurrentStat("top5teams");
-            }}
-            className={`${currentStat == "top5teams" ? "text-orange-300" : "text-gray-400 dark:text-gray-500"} text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer`}
-          >
-            Top Teams
-          </button>
-          <button
-            onClick={() => {
-              setCurrentStat("chop5teams");
-            }}
-            className={`${currentStat == "chop5teams" ? "text-orange-300" : "text-gray-400 dark:text-gray-500"} text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer`}
-          >
-            Chopped Teams
-          </button>
+    <div className="flex flex-col items-center py-12">
+      <div className="w-full max-w-lg mx-auto">
+        {/* Header */}
+        <div className="text-center mb-4">
+          <p className="text-xs font-bold tracking-[0.3em] uppercase text-orange-400 mb-1">
+            Overall
+          </p>
+          <h1 className="text-4xl font-black tracking-tight">{title}</h1>
+          <div className="flex flex-row gap-4 justify-center mt-2">
+            <button
+              onClick={() => {
+                setCurrentStat("top10");
+              }}
+              className={`${currentStat == "top10" ? "text-orange-300" : "text-gray-400 dark:text-gray-500"} text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer`}
+            >
+              Top 10
+            </button>
+            <button
+              onClick={() => {
+                setCurrentStat("chop10");
+              }}
+              className={`${currentStat == "chop10" ? "text-orange-300" : "text-gray-400 dark:text-gray-500"} text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer`}
+            >
+              Chopped 10
+            </button>
+            <button
+              onClick={() => {
+                setCurrentStat("top5teams");
+              }}
+              className={`${currentStat == "top5teams" ? "text-orange-300" : "text-gray-400 dark:text-gray-500"} text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer`}
+            >
+              Top Teams
+            </button>
+            <button
+              onClick={() => {
+                setCurrentStat("chop5teams");
+              }}
+              className={`${currentStat == "chop5teams" ? "text-orange-300" : "text-gray-400 dark:text-gray-500"} text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer`}
+            >
+              Chopped Teams
+            </button>
+          </div>
         </div>
+
         {currentStat == "top10" ? (
           <StatSection players={players.slice(0, 10)} />
         ) : currentStat == "chop10" ? (
