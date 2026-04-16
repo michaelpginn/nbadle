@@ -16,11 +16,6 @@ async function main() {
   const adapter = new PrismaPg(pool);
   const prisma = new PrismaClient({ adapter });
 
-  // Add nullable column (schema already declares it nullable)
-  await prisma.$executeRawUnsafe(
-    `ALTER TABLE "Player" ADD COLUMN IF NOT EXISTS "nbaIdHash" TEXT`
-  );
-
   // Hash all players that don't have one yet (safe to re-run after seed)
   const players = await prisma.$queryRaw<{ id: number; nbaId: string }[]>`
     SELECT id, "nbaId" FROM "Player" WHERE "nbaIdHash" IS NULL
@@ -31,11 +26,6 @@ async function main() {
     const hash = hashNbaId(player.nbaId, key);
     await prisma.$executeRaw`UPDATE "Player" SET "nbaIdHash" = ${hash} WHERE id = ${player.id}`;
   }
-
-  // Add unique index (Prisma's convention for @unique)
-  await prisma.$executeRawUnsafe(
-    `CREATE UNIQUE INDEX IF NOT EXISTS "Player_nbaIdHash_key" ON "Player"("nbaIdHash")`
-  );
 
   console.log(`Done. Hashed ${players.length} players.`);
   await prisma.$disconnect();

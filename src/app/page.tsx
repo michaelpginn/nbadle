@@ -7,7 +7,7 @@ import StreakCounter from "@/components/StreakCounter";
 import GameOver from "@/components/GameOver";
 import { expectedScore } from "@/lib/elo";
 import Link from "next/link";
-import { Medal, CircleQuestionMark } from "lucide-react";
+import { BarChart2, Trophy, CircleQuestionMark } from "lucide-react";
 
 type CardState = "idle" | "correct" | "wrong" | "fading";
 
@@ -53,6 +53,7 @@ export default function Home() {
   const [showGameOver, setShowGameOver] = useState(false);
   const [endedStreak, setEndedStreak] = useState(0);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
+  const [madeLeaderboard, setMadeLeaderboard] = useState<boolean | null>(null);
 
   const nextPair = useRef<PlayerPair | null>(null);
   const prefetching = useRef(false);
@@ -172,10 +173,23 @@ export default function Home() {
       setLastState1(pickedIsP1 ? "wrong" : "idle");
       setLastState2(pickedIsP1 ? "idle" : "wrong");
 
+      const endedAt = streak;
       setStreak((prev) => {
         setEndedStreak(prev);
         return 0;
       });
+
+      // Check leaderboard eligibility during the transition window
+      setMadeLeaderboard(null);
+      fetch("/api/leaderboard")
+        .then((r) => r.json())
+        .then(({ entries }: { entries: { streak: number }[] }) => {
+          const canMake =
+            endedAt > 0 &&
+            (entries.length < 5 || endedAt > entries[entries.length - 1].streak);
+          setMadeLeaderboard(canMake);
+        })
+        .catch(() => setMadeLeaderboard(false));
 
       // Show wrong highlight for 2s, then fade out, then show dialog
       setTimeout(() => {
@@ -200,22 +214,30 @@ export default function Home() {
           </h1>
           <button
             onClick={() => setShowHowToPlay(true)}
-            className="md:hidden  text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center  hover:text-orange-400 transition-colors"
+            className="md:hidden text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center hover:text-orange-400 transition-colors"
             aria-label="How to play"
           >
             <CircleQuestionMark size={20} />
           </button>
           <Link
             href="/leaderboard"
-            className="md:hidden  text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center  hover:text-orange-400 transition-colors"
+            className="md:hidden text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center hover:text-orange-400 transition-colors"
+            aria-label="Leaderboard"
           >
-            <Medal size={20} />
+            <Trophy size={20} />
+          </Link>
+          <Link
+            href="/stats"
+            className="md:hidden text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center hover:text-orange-400 transition-colors"
+            aria-label="Stats"
+          >
+            <BarChart2 size={20} />
           </Link>
         </div>
         <div className="gap-5 hidden md:flex">
           <button
             onClick={() => setShowHowToPlay(true)}
-            className="rounded-full  text-gray-400 dark:text-gray-500 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer"
+            className="rounded-full text-gray-400 dark:text-gray-500 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer"
             aria-label="How to play"
           >
             <CircleQuestionMark size={15} className="mr-1" /> How to Play
@@ -224,7 +246,13 @@ export default function Home() {
             href="/leaderboard"
             className="text-gray-400 dark:text-gray-500 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
           >
-            <Medal size={15} className="mr-1" /> Leaderboard
+            <Trophy size={15} className="mr-1" /> Leaderboard
+          </Link>
+          <Link
+            href="/stats"
+            className="text-gray-400 dark:text-gray-500 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
+          >
+            <BarChart2 size={15} className="mr-1" /> Stats
           </Link>
         </div>
         <div className="flex-1 flex justify-end">
@@ -302,6 +330,7 @@ export default function Home() {
           streak={endedStreak}
           bestStreak={bestStreak}
           onRestart={handleRestart}
+          madeLeaderboard={madeLeaderboard}
           player1Card={
             <MiniPlayerCard
               player={player1}
