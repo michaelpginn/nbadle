@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 export interface Player {
   id: number;
   nbaId: string;
+  nbaIdHash: string | null;
   name: string;
   team: string;
   elo: number;

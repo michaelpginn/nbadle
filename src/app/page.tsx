@@ -82,6 +82,14 @@ export default function Home() {
       setDisabled(false);
       setProbsRevealed(false);
       setLoading(false);
+      // Update URL so this matchup is shareable (only once hashes are populated)
+      if (pair.player1.nbaIdHash && pair.player2.nbaIdHash) {
+        window.history.replaceState(
+          null,
+          "",
+          `?p1=${pair.player1.nbaIdHash}&p2=${pair.player2.nbaIdHash}`,
+        );
+      }
       // Prefetch next pair in the background while the user decides
       prefetchNext();
     },

@@ -11,12 +11,13 @@ datasource db {
 }
 
 model Player {
-  id        Int      @id @default(autoincrement())
-  nbaId     String   @unique
-  name      String
-  team      String
-  elo       Float    @default(1500)
-  voteCount Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  nbaId      String   @unique
+  nbaIdHash  String?  @unique
+  name       String
+  team       String
+  elo        Float    @default(1500)
+  voteCount  Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
