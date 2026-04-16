@@ -1,7 +1,6 @@
-import LeaderboardSection, {
-  getPlayersRanked,
-} from "../../components/LeaderboardSection";
 import Link from "next/link";
+import StatsContainer from "./stats_container";
+import { getStats } from "@/lib/stats";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +9,7 @@ export const metadata = {
 };
 
 export default async function StatsPage() {
-  const players = await getPlayersRanked();
+  const stats = await getStats();
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white">
@@ -30,32 +29,11 @@ export default async function StatsPage() {
           >
             &larr; Back
           </Link>
-          <p className="text-gray-400 dark:text-gray-500 text-sm font-bold">
-            •
-          </p>
-          <Link
-            href="/stats"
-            className="text-gray-600 dark:text-gray-300 text-sm font-bold flex items-center justify-center transition-colors"
-          >
-            Stats
-          </Link>
         </div>
         <div className="flex-1" />
       </header>
 
-      <div className="mx-auto">
-        <div className="flex justify-center flex-col md:flex-row">
-          <div style={{ maxWidth: 450 }}>
-            <LeaderboardSection players={players.slice(0, 10)} title="Top 10" />
-          </div>
-          <div style={{ maxWidth: 450 }}>
-            <LeaderboardSection
-              players={players.slice(-10)}
-              title="Chopped 10"
-            />
-          </div>
-        </div>
-      </div>
+      <StatsContainer stats={stats} />
     </main>
   );
 }

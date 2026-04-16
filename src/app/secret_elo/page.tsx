@@ -1,6 +1,4 @@
-import LeaderboardSection, {
-  getPlayersRanked,
-} from "../../components/LeaderboardSection";
+import StatSection, { getStats } from "@/components/StatSection";
 import Link from "next/link";
 
 export const dynamic = "force-dynamic";
@@ -10,7 +8,7 @@ export const metadata = {
 };
 
 export default async function LeaderboardPage() {
-  const players = await getPlayersRanked();
+  const { players } = await getStats();
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white">
@@ -24,12 +22,8 @@ export default async function LeaderboardPage() {
       </header>
 
       <div className="max-w-2xl mx-auto">
-        <LeaderboardSection
-          players={players}
-          title={`${players.length} players`}
-          showDetails
-          smallImages
-        />
+        <h1>{`${players.length} players`}</h1>
+        <StatSection players={players} showDetails smallImages />
       </div>
     </main>
   );
