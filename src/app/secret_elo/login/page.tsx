@@ -14,10 +14,16 @@ export default function LoginPage({
           <h1 className="text-2xl font-black tracking-tight">
             NBA<span className="text-orange-400">dle</span>
           </h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">Leaderboard access</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">
+            Leaderboard access
+          </p>
         </div>
 
-        <form action="/api/leaderboard-login" method="POST" className="flex flex-col gap-4">
+        <form
+          action="/api/secret-login"
+          method="POST"
+          className="flex flex-col gap-4"
+        >
           <input
             type="password"
             name="password"

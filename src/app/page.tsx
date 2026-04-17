@@ -85,11 +85,7 @@ export default function Home() {
       setLoading(false);
       // Update URL so this matchup is shareable (only once hashes are populated)
       if (pair.player1.nbaIdHash && pair.player2.nbaIdHash) {
-        window.history.replaceState(
-          null,
-          "",
-          `?p1=${pair.player1.nbaIdHash}&p2=${pair.player2.nbaIdHash}`,
-        );
+        window.history.replaceState(null, "", window.location.pathname);
       }
       // Prefetch next pair in the background while the user decides
       prefetchNext();
@@ -120,12 +116,27 @@ export default function Home() {
     [displayPair],
   );
 
+  // First page load
   useEffect(() => {
     setBestStreak(getBestStreak());
     const params = new URLSearchParams(window.location.search);
     const p1Id = params.get("p1");
     const p2Id = params.get("p2");
     advance(p1Id, p2Id);
+
+    const ref = params.get("ref");
+    if (ref) {
+      const ctrl = new AbortController();
+      fetch("/api/ref", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          refId: ref,
+        }),
+        signal: ctrl.signal,
+      }).catch(console.error);
+      return () => ctrl.abort();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -186,7 +197,8 @@ export default function Home() {
         .then(({ entries }: { entries: { streak: number }[] }) => {
           const canMake =
             endedAt > 0 &&
-            (entries.length < 5 || endedAt > entries[entries.length - 1].streak);
+            (entries.length < 5 ||
+              endedAt > entries[entries.length - 1].streak);
           setMadeLeaderboard(canMake);
         })
         .catch(() => setMadeLeaderboard(false));
