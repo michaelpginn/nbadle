@@ -1,4 +1,5 @@
 import "dotenv/config";
+import { createHmac } from "crypto";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
@@ -6,6 +7,10 @@ import { Pool } from "pg";
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
+
+function hashNbaId(nbaId: string, key: string): string {
+  return createHmac("sha256", key).update(nbaId).digest("base64url").slice(0, 8);
+}
 
 interface NBAPlayer {
   personId: string;
@@ -165,6 +170,21 @@ async function main() {
   }
 
   console.log(`Done. Created: ${created}, Updated: ${updated}`);
+
+  const key = process.env.HASH_KEY;
+  if (key) {
+    const unhashed = await prisma.$queryRaw<{ id: number; nbaId: string }[]>`
+      SELECT id, "nbaId" FROM "Player" WHERE "nbaIdHash" IS NULL
+    `;
+    console.log(`Computing hashes for ${unhashed.length} players...`);
+    for (const player of unhashed) {
+      const hash = hashNbaId(player.nbaId, key);
+      await prisma.$executeRaw`UPDATE "Player" SET "nbaIdHash" = ${hash} WHERE id = ${player.id}`;
+    }
+    console.log(`Hashed ${unhashed.length} players.`);
+  } else {
+    console.warn("HASH_KEY not set — skipping hash generation");
+  }
 }
 
 main()
