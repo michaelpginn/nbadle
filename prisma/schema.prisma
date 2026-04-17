@@ -28,3 +28,8 @@ model Player {
   updatedAt DateTime @updatedAt
   nbaIdHash String   @unique
 }
+
+model Referral {
+  id   String @id
+  hits Int    @default(0)
+}

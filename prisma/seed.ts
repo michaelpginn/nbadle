@@ -9,7 +9,10 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 function hashNbaId(nbaId: string, key: string): string {
-  return createHmac("sha256", key).update(nbaId).digest("base64url").slice(0, 8);
+  return createHmac("sha256", key)
+    .update(nbaId)
+    .digest("base64url")
+    .slice(0, 8);
 }
 
 interface NBAPlayer {
@@ -104,7 +107,10 @@ async function fetchTeamRosters(season: string): Promise<NBAPlayer[]> {
           players.set(personId, {
             personId,
             playerName: String(row[idx("PLAYER")]),
-            team: String(row[idx("TEAM_CITY")] ?? "") + " " + String(row[idx("TEAM_NAME")] ?? ""),
+            team:
+              String(row[idx("TEAM_CITY")] ?? "") +
+              " " +
+              String(row[idx("TEAM_NAME")] ?? ""),
           });
         }
       }
@@ -127,7 +133,9 @@ async function fetchAllPlayers(): Promise<NBAPlayer[]> {
   try {
     const bulk = await fetchCommonAllPlayers(season);
     if (bulk.length >= 300) return bulk;
-    console.log(`Bulk endpoint only returned ${bulk.length} — falling back to team rosters...`);
+    console.log(
+      `Bulk endpoint only returned ${bulk.length} — falling back to team rosters...`,
+    );
   } catch (e) {
     console.warn("Bulk endpoint failed, falling back to team rosters:", e);
   }
@@ -149,6 +157,12 @@ async function main() {
       where: { nbaId: player.personId },
     });
 
+    const key = process.env.HASH_KEY;
+    if (!key) {
+      throw Error("Need to set hash key");
+    }
+    const nbaIdHash = hashNbaId(player.personId, key);
+
     if (existing) {
       await prisma.player.update({
         where: { nbaId: player.personId },
@@ -159,6 +173,7 @@ async function main() {
       await prisma.player.create({
         data: {
           nbaId: player.personId,
+          nbaIdHash: nbaIdHash,
           name: player.playerName,
           team: player.team,
           elo: 1500,
@@ -170,21 +185,6 @@ async function main() {
   }
 
   console.log(`Done. Created: ${created}, Updated: ${updated}`);
-
-  const key = process.env.HASH_KEY;
-  if (key) {
-    const unhashed = await prisma.$queryRaw<{ id: number; nbaId: string }[]>`
-      SELECT id, "nbaId" FROM "Player" WHERE "nbaIdHash" IS NULL
-    `;
-    console.log(`Computing hashes for ${unhashed.length} players...`);
-    for (const player of unhashed) {
-      const hash = hashNbaId(player.nbaId, key);
-      await prisma.$executeRaw`UPDATE "Player" SET "nbaIdHash" = ${hash} WHERE id = ${player.id}`;
-    }
-    console.log(`Hashed ${unhashed.length} players.`);
-  } else {
-    console.warn("HASH_KEY not set — skipping hash generation");
-  }
 }
 
 main()
