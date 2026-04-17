@@ -1,8 +1,9 @@
 import "dotenv/config";
-import { createHmac } from "crypto";
+import { createHash, createHmac } from "crypto";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
+import { nbaHeadshotUrl } from "@/lib/image_urls";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -144,6 +145,16 @@ async function fetchAllPlayers(): Promise<NBAPlayer[]> {
   return fetchTeamRosters(season);
 }
 
+const TARGET_HASH =
+  "e366885fc4212e3a4100f49ed48ad866fd05b32e2d25898c2c24205e789e2632";
+
+async function hashImageUrl(url: string): Promise<string | null> {
+  const res = await fetch(url);
+  if (!res.ok) return null;
+  const buf = await res.arrayBuffer();
+  return createHash("sha256").update(Buffer.from(buf)).digest("hex");
+}
+
 async function main() {
   console.log("Fetching current NBA roster...");
   const players = await fetchAllPlayers();
@@ -162,6 +173,14 @@ async function main() {
       throw Error("Need to set hash key");
     }
     const nbaIdHash = hashNbaId(player.personId, key);
+
+    // Check for emtpy image
+    const imageUrl = nbaHeadshotUrl(player.personId);
+    const hash = await hashImageUrl(imageUrl);
+    if (hash === TARGET_HASH) {
+      console.log(`Empty image: ${player.playerName}, skipping`);
+      continue;
+    }
 
     if (existing) {
       await prisma.player.update({

@@ -4,7 +4,11 @@ import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
 
-const TARGET_HASH = "FILL_IN_HERE";
+// Old script to remove faceless players
+// don't need anymore since this is in the seed
+
+const TARGET_HASH =
+  "e366885fc4212e3a4100f49ed48ad866fd05b32e2d25898c2c24205e789e2632";
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
@@ -28,7 +32,12 @@ async function main() {
     const url = `https://cdn.nba.com/headshots/nba/latest/1040x760/${player.nbaId}.png`;
     const hash = await hashImageUrl(url);
     if (hash === TARGET_HASH) {
-      console.log(`Match: ${player.name}`);
+      console.log(`Match: ${player.name}--deleting`);
+      await prisma.player.delete({
+        where: {
+          nbaId: player.nbaId,
+        },
+      });
     }
   }
 

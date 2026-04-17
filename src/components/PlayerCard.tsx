@@ -1,5 +1,6 @@
 "use client";
 
+import { nbaHeadshotUrl } from "@/lib/image_urls";
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 
@@ -25,9 +26,6 @@ interface PlayerCardProps {
 }
 
 const DURATION = 1000; // ms
-
-const headshotUrl = (nbaId: string) =>
-  `https://cdn.nba.com/headshots/nba/latest/1040x760/${nbaId}.png`;
 
 function useCountUp(target: number, running: boolean): number {
   const [displayed, setDisplayed] = useState(0);
@@ -125,7 +123,7 @@ export default function PlayerCard({
       {/* Headshot */}
       <div className="relative w-full flex-1 min-h-0 md:flex-none md:w-64 md:h-48 mx-auto overflow-hidden rounded-xl mt-1 md:mt-2">
         <Image
-          src={headshotUrl(player.nbaId)}
+          src={nbaHeadshotUrl(player.nbaId)}
           alt={player.name}
           fill
           className="object-contain md:object-cover object-top"
@@ -198,7 +196,7 @@ export function MiniPlayerCard({
       {/* Headshot */}
       <div className="relative w-full h-24 flex-none md:w-64 md:h-48 mx-auto overflow-hidden rounded-xl mt-1 md:mt-2">
         <Image
-          src={headshotUrl(player.nbaId)}
+          src={nbaHeadshotUrl(player.nbaId)}
           alt={player.name}
           fill
           className="object-contain md:object-cover object-top"

@@ -1,12 +1,9 @@
 import Image from "next/image";
 import { RankedPlayer, RankedTeam } from "@/lib/stats";
-import { teamLogoUrl } from "@/lib/teams";
 import { UserSearch } from "lucide-react";
+import { nbaHeadshotUrl, nbaTeamLogoUrl } from "@/lib/image_urls";
 
 export type { RankedPlayer, RankedTeam };
-
-const headshotUrl = (nbaId: string) =>
-  `https://cdn.nba.com/headshots/nba/latest/1040x760/${nbaId}.png`;
 
 function medal(rank: number) {
   if (rank === 1) return "🥇";
@@ -54,7 +51,7 @@ export default function StatSection({
                 className={`${smallImages ? "w-12 h-9" : "w-24 h-18"} relative shrink-0 rounded-lg overflow-hidden bg-gray-200 dark:bg-gray-800`}
               >
                 <Image
-                  src={headshotUrl(player.nbaId)}
+                  src={nbaHeadshotUrl(player.nbaId)}
                   alt={player.name}
                   fill
                   className="object-cover object-top"
@@ -112,7 +109,7 @@ export default function StatSection({
                   <UserSearch className="text-gray-400 w-full h-full p-4" />
                 ) : (
                   <Image
-                    src={teamLogoUrl(team.team) ?? ""}
+                    src={nbaTeamLogoUrl(team.team) ?? ""}
                     alt={team.team}
                     fill
                     className="object-cover object-top"
