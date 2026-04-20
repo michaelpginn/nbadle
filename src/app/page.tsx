@@ -8,6 +8,7 @@ import GameOver from "@/components/GameOver";
 import { expectedScore } from "@/lib/elo";
 import Link from "next/link";
 import { BarChart2, Trophy, CircleQuestionMark } from "lucide-react";
+import { LEADERBOARD_SIZE } from "@/lib/constants";
 
 type CardState = "idle" | "correct" | "wrong" | "fading";
 
@@ -197,7 +198,7 @@ export default function Home() {
         .then(({ entries }: { entries: { streak: number }[] }) => {
           const canMake =
             endedAt > 0 &&
-            (entries.length < 10 ||
+            (entries.length < LEADERBOARD_SIZE ||
               endedAt > entries[entries.length - 1].streak);
           setMadeLeaderboard(canMake);
         })

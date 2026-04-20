@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getPrisma } from "@/lib/prisma";
 import { BarChart2, Trophy } from "lucide-react";
+import { LEADERBOARD_SIZE } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
@@ -36,11 +37,14 @@ export default async function LeaderboardPage() {
   const entries = await prisma.leaderboardEntry.findMany({
     where: { weekOf },
     orderBy: { streak: "desc" },
-    take: 5,
+    take: LEADERBOARD_SIZE,
     select: { id: true, username: true, streak: true },
   });
 
-  const slots = Array.from({ length: 5 }, (_, i) => entries[i] ?? null);
+  const slots = Array.from(
+    { length: LEADERBOARD_SIZE },
+    (_, i) => entries[i] ?? null,
+  );
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white">
