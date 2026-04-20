@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getPrisma } from "@/lib/prisma";
+import { LEADERBOARD_SIZE } from "@/lib/constants";
 
 function getWeekOf(): Date {
   const now = new Date();
@@ -38,7 +39,11 @@ export async function POST(req: Request) {
     ) {
       return NextResponse.json({ error: "Invalid username" }, { status: 400 });
     }
-    if (typeof streak !== "number" || streak <= 0 || !Number.isInteger(streak)) {
+    if (
+      typeof streak !== "number" ||
+      streak <= 0 ||
+      !Number.isInteger(streak)
+    ) {
       return NextResponse.json({ error: "Invalid streak" }, { status: 400 });
     }
 
@@ -48,10 +53,10 @@ export async function POST(req: Request) {
     const entries = await prisma.leaderboardEntry.findMany({
       where: { weekOf },
       orderBy: { streak: "desc" },
-      take: 5,
+      take: LEADERBOARD_SIZE,
     });
 
-    const full = entries.length >= 5;
+    const full = entries.length >= LEADERBOARD_SIZE;
     const beatsLowest = !full || streak > entries[entries.length - 1].streak;
 
     if (!beatsLowest) {
@@ -68,7 +73,7 @@ export async function POST(req: Request) {
         where: { weekOf },
         orderBy: { streak: "desc" },
       });
-      const toDrop = allEntries.slice(5);
+      const toDrop = allEntries.slice(LEADERBOARD_SIZE);
       if (toDrop.length > 0) {
         await prisma.leaderboardEntry.deleteMany({
           where: { id: { in: toDrop.map((e) => e.id) } },
