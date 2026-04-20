@@ -1,8 +1,7 @@
 import { expectedScore } from "@/lib/elo";
-import { Player } from "@prisma/client";
 import { CircleHelp } from "lucide-react";
 import { ReactNode, useCallback, useMemo, useState } from "react";
-import PlayerCard from "./PlayerCard";
+import PlayerCard, { Player } from "./PlayerCard";
 
 interface GameViewProps {
   loading: boolean;

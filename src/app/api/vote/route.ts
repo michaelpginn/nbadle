@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getPrisma } from "@/lib/prisma";
 import { calculateNewElos, expectedScore } from "@/lib/elo";
+import { getDayOf } from "@/lib/dates";
 
 interface VoteRequestBody {
   winnerId: number;
@@ -25,9 +26,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid player IDs" }, { status: 400 });
   }
 
-  const [winner, loser] = await Promise.all([
+  const [winner, loser, dailyGame] = await Promise.all([
     prisma.player.findUnique({ where: { id: winnerId } }),
     prisma.player.findUnique({ where: { id: loserId } }),
+    prisma.dailyGame.findFirst({
+      where: { gameDate: getDayOf(new Date()) },
+      select: { matchups: { select: { player1Id: true, player2Id: true } } },
+    }),
   ]);
 
   if (!winner || !loser) {
@@ -36,6 +41,10 @@ export async function POST(req: NextRequest) {
       { status: 404 }
     );
   }
+
+  const dailyPlayerIds = new Set(
+    dailyGame?.matchups.flatMap((m) => [m.player1Id, m.player2Id]) ?? [],
+  );
 
   const winnerExpected = expectedScore(winner.elo, loser.elo);
   const loserExpected = 1 - winnerExpected;
@@ -47,22 +56,20 @@ export async function POST(req: NextRequest) {
     loser.voteCount
   );
 
-  await Promise.all([
-    prisma.player.update({
+  const updates = [];
+  if (!dailyPlayerIds.has(winnerId)) {
+    updates.push(prisma.player.update({
       where: { id: winnerId },
-      data: {
-        elo: newWinnerElo,
-        voteCount: { increment: 1 },
-      },
-    }),
-    prisma.player.update({
+      data: { elo: newWinnerElo, voteCount: { increment: 1 } },
+    }));
+  }
+  if (!dailyPlayerIds.has(loserId)) {
+    updates.push(prisma.player.update({
       where: { id: loserId },
-      data: {
-        elo: newLoserElo,
-        voteCount: { increment: 1 },
-      },
-    }),
-  ]);
+      data: { elo: newLoserElo, voteCount: { increment: 1 } },
+    }));
+  }
+  if (updates.length > 0) await Promise.all(updates);
 
     return NextResponse.json({
       winnerProbability: winnerExpected,

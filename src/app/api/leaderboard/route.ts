@@ -9,7 +9,7 @@ export async function GET() {
     const entries = await prisma.leaderboardEntry.findMany({
       where: { weekOf: getWeekOf() },
       orderBy: { streak: "desc" },
-      take: 5,
+      take: LEADERBOARD_SIZE,
       select: { id: true, username: true, streak: true },
     });
     return NextResponse.json({ entries });
