@@ -1,16 +1,7 @@
 import { NextResponse } from "next/server";
 import { getPrisma } from "@/lib/prisma";
 import { LEADERBOARD_SIZE } from "@/lib/constants";
-
-function getWeekOf(): Date {
-  const now = new Date();
-  const day = now.getUTCDay(); // 0 = Sunday
-  const daysToMonday = day === 0 ? 6 : day - 1;
-  const monday = new Date(now);
-  monday.setUTCDate(now.getUTCDate() - daysToMonday);
-  monday.setUTCHours(0, 0, 0, 0);
-  return monday;
-}
+import { getWeekOf } from "@/lib/dates";
 
 export async function GET() {
   try {

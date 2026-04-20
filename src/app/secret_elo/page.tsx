@@ -13,7 +13,7 @@ export default async function LeaderboardPage() {
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white">
-      <header className="flex items-center justify-between px-8 py-5 border-b border-gray-200 dark:border-white/10">
+      <header className="flex items-center justify-between px-8 py-2 md:py-5 min-h-14 md:min-h-20 border-b border-gray-200 dark:border-white/10">
         <Link href="/" className="text-2xl font-black tracking-tight">
           NBA<span className="text-orange-400">dle</span>
         </Link>

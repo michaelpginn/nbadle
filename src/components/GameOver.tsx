@@ -1,25 +1,27 @@
 "use client";
 
-import { ReactElement, useEffect, useRef, useState } from "react";
-import Cookies from "js-cookie";
+import { ReactElement, useEffect, useMemo, useRef, useState } from "react";
+import { getLeaderboardName, saveLeaderboardName } from "@/lib/cookies";
+import { PlayerPair } from "./GameView";
+import { MiniPlayerCard } from "./PlayerCard";
+import { expectedScore } from "@/lib/elo";
 
 interface GameOverProps {
   streak: number;
   bestStreak: number;
   onRestart: () => void;
-  player1Card: ReactElement;
-  player2Card: ReactElement;
+  pair: PlayerPair;
+  pickedId: number;
   madeLeaderboard: boolean | null;
 }
 
-const COOKIE = "lb_name";
 
 export default function GameOver({
   streak,
   bestStreak,
   onRestart,
-  player1Card,
-  player2Card,
+  pair,
+  pickedId,
   madeLeaderboard,
 }: GameOverProps) {
   const isNewBest = streak > 0 && streak >= bestStreak;
@@ -29,8 +31,16 @@ export default function GameOver({
   const [submitting, setSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const [prob1, prob2] = useMemo(() => {
+    if (!pair) {
+      return [0, 0];
+    }
+    const p1 = expectedScore(pair.player1.elo, pair.player2.elo);
+    return [p1, 1 - p1];
+  }, [pair]);
+
   useEffect(() => {
-    const saved = Cookies.get(COOKIE);
+    const saved = getLeaderboardName();
     if (saved) setUsername(saved);
   }, []);
 
@@ -50,7 +60,7 @@ export default function GameOver({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username: name, streak }),
       });
-      Cookies.set(COOKIE, name, { expires: 365 });
+      saveLeaderboardName(name);
       setSubmitted(true);
     } finally {
       setSubmitting(false);
@@ -64,8 +74,16 @@ export default function GameOver({
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-white/10 rounded-3xl shadow-2xl p-4 md:p-10 max-w-sm w-full text-center flex flex-col gap-6 animate-in fade-in zoom-in duration-200">
         {/* Player cards */}
         <div className="flex items-center justify-center gap-3 md:gap-10">
-          {player1Card}
-          {player2Card}
+          <MiniPlayerCard
+            player={pair.player1}
+            state={pickedId == pair.player1.id ? "wrong" : "idle"}
+            probability={prob1}
+          />
+          <MiniPlayerCard
+            player={pair.player2}
+            state={pickedId == pair.player2.id ? "idle" : "wrong"}
+            probability={prob2}
+          />
         </div>
 
         {/* Title */}
@@ -116,7 +134,9 @@ export default function GameOver({
               <p className="text-gray-500 dark:text-gray-400 text-sm uppercase tracking-widest">
                 Best streak
               </p>
-              <p className="text-4xl font-black text-orange-400">{bestStreak}</p>
+              <p className="text-4xl font-black text-orange-400">
+                {bestStreak}
+              </p>
               {isNewBest && (
                 <p className="text-green-400 text-sm font-semibold mt-1">
                   New personal best!

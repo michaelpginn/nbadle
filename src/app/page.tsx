@@ -1,29 +1,15 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import Cookies from "js-cookie";
-import PlayerCard, { MiniPlayerCard, Player } from "@/components/PlayerCard";
+import { Player } from "@/components/PlayerCard";
 import StreakCounter from "@/components/StreakCounter";
 import GameOver from "@/components/GameOver";
-import { expectedScore } from "@/lib/elo";
 import Link from "next/link";
-import { BarChart2, Trophy, CircleQuestionMark } from "lucide-react";
+import { BarChart2, Trophy, Calendar } from "lucide-react";
 import { LEADERBOARD_SIZE } from "@/lib/constants";
-
-type CardState = "idle" | "correct" | "wrong" | "fading";
-
-interface PlayerPair {
-  player1: Player;
-  player2: Player;
-}
-
-function getBestStreak(): number {
-  return parseInt(Cookies.get("best_streak") ?? "0", 10);
-}
-
-function saveBestStreak(value: number) {
-  Cookies.set("best_streak", String(value), { expires: 365 });
-}
+import GameView, { PlayerPair } from "@/components/GameView";
+import { getBestStreak, saveBestStreak, getDailyResults, hasDismissedDailyNudge, saveDismissedDailyNudge } from "@/lib/cookies";
+import { getDayOf } from "@/lib/dates";
 
 async function fetchRandomPair(): Promise<PlayerPair> {
   const res = await fetch("/api/players/random");
@@ -38,22 +24,19 @@ async function fetchPair(p1Id: string, p2Id: string): Promise<PlayerPair> {
 }
 
 export default function Home() {
-  const [player1, setPlayer1] = useState<Player | null>(null);
-  const [player2, setPlayer2] = useState<Player | null>(null);
+  const [pair, setPair] = useState<PlayerPair | undefined>(undefined);
   const [loading, setLoading] = useState(true);
-  const [disabled, setDisabled] = useState(false);
-  const [state1, setState1] = useState<CardState>("idle");
-  const [state2, setState2] = useState<CardState>("idle");
-  const [lastState1, setLastState1] = useState<CardState>("idle");
-  const [lastState2, setLastState2] = useState<CardState>("idle");
-  const [prob1, setProb1] = useState<number>(0.5);
-  const [prob2, setProb2] = useState<number>(0.5);
-  const [probsRevealed, setProbsRevealed] = useState(false);
   const [streak, setStreak] = useState(0);
   const [bestStreak, setBestStreak] = useState(0);
-  const [showGameOver, setShowGameOver] = useState(false);
+  const [showGameOver, setShowGameOver] = useState<{
+    show: boolean;
+    pickedId?: number;
+  }>({
+    show: false,
+  });
   const [endedStreak, setEndedStreak] = useState(0);
   const [showHowToPlay, setShowHowToPlay] = useState(false);
+  const [showDailyNudge, setShowDailyNudge] = useState(false);
   const [madeLeaderboard, setMadeLeaderboard] = useState<boolean | null>(null);
 
   const nextPair = useRef<PlayerPair | null>(null);
@@ -73,22 +56,8 @@ export default function Home() {
 
   const displayPair = useCallback(
     (pair: PlayerPair) => {
-      setPlayer1(pair.player1);
-      setPlayer2(pair.player2);
-      // Compute probabilities immediately from ELO — no round trip needed
-      const p1 = expectedScore(pair.player1.elo, pair.player2.elo);
-      setProb1(p1);
-      setProb2(1 - p1);
-      setState1("idle");
-      setState2("idle");
-      setDisabled(false);
-      setProbsRevealed(false);
+      setPair(pair);
       setLoading(false);
-      // Update URL so this matchup is shareable (only once hashes are populated)
-      if (pair.player1.nbaIdHash && pair.player2.nbaIdHash) {
-        window.history.replaceState(null, "", window.location.pathname);
-      }
-      // Prefetch next pair in the background while the user decides
       prefetchNext();
     },
     [prefetchNext],
@@ -120,35 +89,44 @@ export default function Home() {
   // First page load
   useEffect(() => {
     setBestStreak(getBestStreak());
+
+    const cookie = getDailyResults();
+    const today = getDayOf(new Date()).toISOString();
+    const playedToday = cookie && new Date(cookie.day).toISOString() === today;
+    let nudgeTimer: ReturnType<typeof setTimeout> | null = null;
+    if (!playedToday && !hasDismissedDailyNudge()) {
+      nudgeTimer = setTimeout(() => setShowDailyNudge(true), 1500);
+    }
+
     const params = new URLSearchParams(window.location.search);
     const p1Id = params.get("p1");
     const p2Id = params.get("p2");
     advance(p1Id, p2Id);
 
     const ref = params.get("ref");
+    let ctrl: AbortController | null = null;
     if (ref) {
-      const ctrl = new AbortController();
+      ctrl = new AbortController();
       fetch("/api/ref", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          refId: ref,
-        }),
+        body: JSON.stringify({ refId: ref }),
         signal: ctrl.signal,
       }).catch(console.error);
-      return () => ctrl.abort();
     }
+
+    return () => {
+      if (nudgeTimer) clearTimeout(nudgeTimer);
+      if (ctrl) ctrl.abort();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleVote = (pickedPlayer: Player, otherPlayer: Player) => {
-    if (disabled || !player1 || !player2) return;
-    setDisabled(true);
-
-    const pickedIsHigher = pickedPlayer.elo >= otherPlayer.elo;
-    const pickedIsP1 = pickedPlayer.id === player1.id;
-    setProbsRevealed(true);
-
+  const handleVote = (
+    correct: boolean,
+    pickedPlayer: Player,
+    otherPlayer: Player,
+  ) => {
     // Fire-and-forget — ELO update happens in the background
     fetch("/api/vote", {
       method: "POST",
@@ -159,7 +137,7 @@ export default function Home() {
       }),
     }).catch(console.error);
 
-    if (pickedIsHigher) {
+    if (correct) {
       setStreak((prev) => {
         const next = prev + 1;
         if (next > getBestStreak()) {
@@ -168,23 +146,8 @@ export default function Home() {
         }
         return next;
       });
-
-      setState1(pickedIsP1 ? "correct" : "idle");
-      setState2(pickedIsP1 ? "idle" : "correct");
-      setLastState1(pickedIsP1 ? "correct" : "idle");
-      setLastState2(pickedIsP1 ? "idle" : "correct");
-
-      setTimeout(() => {
-        setState1("fading");
-        setState2("fading");
-        setTimeout(advance, 1000);
-      }, 2000);
+      advance();
     } else {
-      setState1(pickedIsP1 ? "wrong" : "idle");
-      setState2(pickedIsP1 ? "idle" : "wrong");
-      setLastState1(pickedIsP1 ? "wrong" : "idle");
-      setLastState2(pickedIsP1 ? "idle" : "wrong");
-
       const endedAt = streak;
       setStreak((prev) => {
         setEndedStreak(prev);
@@ -204,17 +167,15 @@ export default function Home() {
         })
         .catch(() => setMadeLeaderboard(false));
 
-      // Show wrong highlight for 2s, then fade out, then show dialog
-      setTimeout(() => {
-        setState1("fading");
-        setState2("fading");
-        setTimeout(() => setShowGameOver(true), 1000);
-      }, 2000);
+      setShowGameOver({
+        show: true,
+        pickedId: pickedPlayer.id,
+      });
     }
   };
 
   const handleRestart = () => {
-    setShowGameOver(false);
+    setShowGameOver({ show: false });
     advance();
   };
 
@@ -225,13 +186,13 @@ export default function Home() {
           <h1 className="text-2xl font-black tracking-tight">
             NBA<span className="text-orange-400">dle</span>
           </h1>
-          <button
-            onClick={() => setShowHowToPlay(true)}
+          <Link
+            href="/daily"
             className="md:hidden text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center hover:text-orange-400 transition-colors"
-            aria-label="How to play"
+            aria-label="Daily challenge"
           >
-            <CircleQuestionMark size={20} />
-          </button>
+            <Calendar size={20} />
+          </Link>
           <Link
             href="/leaderboard"
             className="md:hidden text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center hover:text-orange-400 transition-colors"
@@ -248,13 +209,12 @@ export default function Home() {
           </Link>
         </div>
         <div className="gap-5 hidden md:flex">
-          <button
-            onClick={() => setShowHowToPlay(true)}
-            className="rounded-full text-gray-400 dark:text-gray-500 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors cursor-pointer"
-            aria-label="How to play"
+          <Link
+            href="/daily"
+            className="text-gray-400 dark:text-gray-500 text-sm font-bold flex items-center justify-center hover:text-orange-400 transition-colors"
           >
-            <CircleQuestionMark size={15} className="mr-1" /> How to Play
-          </button>
+            <Calendar size={15} className="mr-1" /> Daily
+          </Link>
           <Link
             href="/leaderboard"
             className="text-gray-400 dark:text-gray-500 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
@@ -273,46 +233,12 @@ export default function Home() {
         </div>
       </header>
 
-      <div className="flex-1 min-h-0 flex flex-col items-center justify-start gap-4 md:gap-8 px-4 py-4 md:py-10">
-        <div className="flex items-center flex-col">
-          <h2 className="text-3xl md:text-4xl font-black text-center tracking-tight">
-            Who is hotter???
-          </h2>
-        </div>
-        {loading ? (
-          <div className="flex items-center justify-center h-64">
-            <div className="w-12 h-12 border-4 border-orange-400 border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : (
-          <div className="flex flex-col md:flex-row items-center justify-center gap-3 md:gap-10 w-full max-w-3xl flex-1 min-h-0 md:flex-none">
-            {player1 && (
-              <PlayerCard
-                player={player1}
-                state={state1}
-                probability={prob1}
-                probabilityRevealed={probsRevealed}
-                onClick={() => handleVote(player1, player2!)}
-                disabled={disabled}
-              />
-            )}
-
-            <div className="text-3xl font-black text-gray-300 dark:text-gray-500 select-none shrink-0">
-              vs
-            </div>
-
-            {player2 && (
-              <PlayerCard
-                player={player2}
-                state={state2}
-                probability={prob2}
-                probabilityRevealed={probsRevealed}
-                onClick={() => handleVote(player2, player1!)}
-                disabled={disabled}
-              />
-            )}
-          </div>
-        )}
-      </div>
+      <GameView
+        loading={loading}
+        pair={pair}
+        handleVote={handleVote}
+        onHowToPlay={() => setShowHowToPlay(true)}
+      />
 
       {showHowToPlay && (
         <div
@@ -342,26 +268,45 @@ export default function Home() {
         </div>
       )}
 
-      {showGameOver && player1 && player2 && (
+      {showDailyNudge && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-white/10 rounded-3xl shadow-2xl p-8 max-w-sm w-full mx-4 text-center flex flex-col gap-6 animate-in fade-in zoom-in duration-200">
+            <Calendar size={36} className="text-orange-400 mx-auto" />
+            <div className="flex flex-col gap-2">
+              <h2 className="text-3xl font-black text-gray-900 dark:text-white">
+                Daily Challenge
+              </h2>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
+                Play today&apos;s fixed set of matchups and see how your picks
+                compare to everyone else.
+              </p>
+            </div>
+            <div className="flex flex-col">
+              <Link
+                href="/daily"
+                className="w-full bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded-xl transition-colors"
+              >
+                Play now
+              </Link>
+              <button
+                onClick={() => { saveDismissedDailyNudge(); setShowDailyNudge(false); }}
+                className="text-gray-400 dark:text-gray-500 text-sm font-semibold hover:text-gray-600 dark:hover:text-gray-300 transition-colors cursor-pointer pt-3"
+              >
+                Maybe later
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showGameOver.show && showGameOver.pickedId && pair && (
         <GameOver
           streak={endedStreak}
           bestStreak={bestStreak}
           onRestart={handleRestart}
           madeLeaderboard={madeLeaderboard}
-          player1Card={
-            <MiniPlayerCard
-              player={player1}
-              state={lastState1}
-              probability={prob1}
-            />
-          }
-          player2Card={
-            <MiniPlayerCard
-              player={player2}
-              state={lastState2}
-              probability={prob2}
-            />
-          }
+          pair={pair}
+          pickedId={showGameOver.pickedId}
         />
       )}
     </main>

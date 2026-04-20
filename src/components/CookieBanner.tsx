@@ -1,21 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Cookies from "js-cookie";
-
-const COOKIE = "cookie_consent";
+import { hasCookieConsent, saveCookieConsent } from "@/lib/cookies";
 
 export default function CookieBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (!Cookies.get(COOKIE)) setVisible(true);
+    if (!hasCookieConsent()) setVisible(true);
   }, []);
 
   if (!visible) return null;
 
   function accept() {
-    Cookies.set(COOKIE, "1", { expires: 365 });
+    saveCookieConsent();
     setVisible(false);
   }
 

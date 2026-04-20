@@ -1,23 +1,14 @@
 import Link from "next/link";
 import { getPrisma } from "@/lib/prisma";
-import { BarChart2, Trophy } from "lucide-react";
+import { BarChart2, Calendar, Trophy } from "lucide-react";
 import { LEADERBOARD_SIZE } from "@/lib/constants";
+import { getWeekOf } from "@/lib/dates";
 
 export const dynamic = "force-dynamic";
 
 export const metadata = {
   title: "NBAdle — Leaderboard",
 };
-
-function getWeekOf(): Date {
-  const now = new Date();
-  const day = now.getUTCDay();
-  const daysToMonday = day === 0 ? 6 : day - 1;
-  const monday = new Date(now);
-  monday.setUTCDate(now.getUTCDate() - daysToMonday);
-  monday.setUTCHours(0, 0, 0, 0);
-  return monday;
-}
 
 function formatWeekRange(monday: Date): string {
   const sunday = new Date(monday);
@@ -48,13 +39,17 @@ export default async function LeaderboardPage() {
 
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white">
-      <header
-        className="flex items-center px-8 py-5 border-b border-gray-200 dark:border-white/10"
-        style={{ minHeight: 81 }}
-      >
+      <header className="flex items-center px-8 py-2 md:py-5 min-h-14 md:min-h-20 border-b border-gray-200 dark:border-white/10">
         <div className="flex-1 flex items-center gap-3">
           <Link href="/" className="text-2xl font-black tracking-tight">
             NBA<span className="text-orange-400">dle</span>
+          </Link>
+          <Link
+            href="/daily"
+            className="md:hidden text-gray-400 dark:text-gray-500 text-xs font-bold flex items-center justify-center hover:text-orange-400 transition-colors"
+            aria-label="Daily"
+          >
+            <Calendar size={20} />
           </Link>
           <Link
             href="/leaderboard"
@@ -77,6 +72,12 @@ export default async function LeaderboardPage() {
             className="text-gray-400 dark:text-gray-500 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
           >
             &larr; Back
+          </Link>
+          <Link
+            href="/daily"
+            className="text-gray-400 dark:text-gray-500 text-sm font-bold flex items-center justify-center hover:border-orange-400 hover:text-orange-400 transition-colors"
+          >
+            <Calendar size={15} className="mr-1" /> Daily
           </Link>
           <Link
             href="/leaderboard"

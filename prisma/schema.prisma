@@ -27,9 +27,35 @@ model Player {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   nbaIdHash String   @unique
+
+  // Not used, just for backrelation
+  matchupsAsP1 PlayerMatchup[] @relation("Player1")
+  matchupsAsP2 PlayerMatchup[] @relation("Player2")
 }
 
 model Referral {
   id   String @id
   hits Int    @default(0)
+}
+
+model PlayerMatchup {
+  id          Int        @id @default(autoincrement())
+  player1     Player     @relation("Player1", fields: [player1Id], references: [id])
+  player1Id   Int
+  player2     Player     @relation("Player2", fields: [player2Id], references: [id])
+  player2Id   Int
+  turnIndex   Int        @default(0)
+  dailyGame   DailyGame? @relation(fields: [dailyGameId], references: [id])
+  dailyGameId Int?
+}
+
+model DailyGame {
+  id               Int             @id @default(autoincrement())
+  matchups         PlayerMatchup[]
+  gameDate         DateTime        @unique @db.Date
+  totalPlays       Int             @default(0)
+  correctPerTurn   Int[] // [i_1, ..., i_10] where each value is the # of people who got it correct
+  numUsersPerScore Int[] // [i_1, ..., i_10] where each value is the # of people who got that score
+
+  @@index([gameDate])
 }
