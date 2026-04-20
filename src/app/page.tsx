@@ -197,7 +197,7 @@ export default function Home() {
         .then(({ entries }: { entries: { streak: number }[] }) => {
           const canMake =
             endedAt > 0 &&
-            (entries.length < 5 ||
+            (entries.length < 10 ||
               endedAt > entries[entries.length - 1].streak);
           setMadeLeaderboard(canMake);
         })
@@ -218,8 +218,8 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white flex flex-col">
-      <header className="flex items-center justify-between px-8 py-5 border-b border-gray-200 dark:border-white/10">
+    <main className="min-h-dvh bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white flex flex-col pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)]">
+      <header className="flex items-center justify-between px-8 py-2 md:py-5 border-b border-gray-200 dark:border-white/10">
         <div className="flex-1 flex items-center gap-3">
           <h1 className="text-2xl font-black tracking-tight">
             NBA<span className="text-orange-400">dle</span>
