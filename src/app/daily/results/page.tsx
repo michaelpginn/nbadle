@@ -128,7 +128,7 @@ export default function DailyResults() {
           <>
             <Link
               href="/"
-              className="self-center bg-orange-400 hover:bg-orange-500 text-white font-black text-center px-8 py-2 rounded-xl transition-colors shadow-lg shadow-orange-400/20 w-full md:w-auto"
+              className="md:hidden self-center bg-orange-400 hover:bg-orange-500 text-white font-black text-center px-8 py-2 rounded-xl transition-colors shadow-lg shadow-orange-400/20 w-full md:w-auto"
             >
               Keep playing &rarr;
             </Link>
@@ -162,38 +162,48 @@ export default function DailyResults() {
             {gameData!.totalPlays > 0 && (
               <div className="w-full">
                 <p className="text-gray-500 dark:text-gray-400 text-sm uppercase tracking-widest font-semibold">
-                  Overall distribution
+                  All Users&apos; Scores
                 </p>
                 <div className="flex items-end justify-between gap-2 h-32">
-                  {Array.from({ length: DAILY_LENGTH + 1 }, (_, score) => {
-                    const count = gameData!.numUsersPerScore[score] ?? 0;
-                    const pct = Math.round(
-                      (count / gameData!.totalPlays) * 100,
+                  {(() => {
+                    const maxCount = Math.max(
+                      ...Array.from(
+                        { length: DAILY_LENGTH + 1 },
+                        (_, s) => gameData!.numUsersPerScore[s] ?? 0,
+                      ),
+                      1,
                     );
-                    const isUser = numCorrect === score;
-                    return (
-                      <div
-                        key={score}
-                        className="flex-1 flex flex-col items-center gap-1"
-                      >
-                        <span className="text-xs font-semibold tabular-nums text-gray-500 dark:text-gray-400">
-                          {pct > 0 ? `${pct}%` : ""}
-                        </span>
+                    return Array.from({ length: DAILY_LENGTH + 1 }, (_, score) => {
+                      const count = gameData!.numUsersPerScore[score] ?? 0;
+                      const barPct = (count / maxCount) * 100;
+                      const labelPct = Math.round(
+                        (count / gameData!.totalPlays) * 100,
+                      );
+                      const isUser = numCorrect === score;
+                      return (
                         <div
-                          className="w-full bg-gray-200 dark:bg-gray-800 rounded-t overflow-hidden flex items-end"
-                          style={{ height: "80px" }}
+                          key={score}
+                          className="flex-1 flex flex-col items-center gap-1"
                         >
+                          <span className="text-xs font-semibold tabular-nums text-gray-500 dark:text-gray-400">
+                            {labelPct > 0 ? `${labelPct}%` : ""}
+                          </span>
                           <div
-                            className={`w-full rounded-t transition-all ${isUser ? "bg-orange-400" : "bg-gray-400 dark:bg-gray-600"}`}
-                            style={{ height: pct > 0 ? `${pct}%` : "2px" }}
-                          />
+                            className="w-full bg-gray-200 dark:bg-gray-800 rounded-t overflow-hidden flex items-end"
+                            style={{ height: "80px" }}
+                          >
+                            <div
+                              className={`w-full rounded-t transition-all ${isUser ? "bg-orange-400" : "bg-gray-400 dark:bg-gray-600"}`}
+                              style={{ height: count > 0 ? `${barPct}%` : "2px" }}
+                            />
+                          </div>
+                          <span className="text-xs font-bold tabular-nums text-gray-500 dark:text-gray-400">
+                            {score}
+                          </span>
                         </div>
-                        <span className="text-xs font-bold tabular-nums text-gray-500 dark:text-gray-400">
-                          {score}
-                        </span>
-                      </div>
-                    );
-                  })}
+                      );
+                    });
+                  })()}
                 </div>
               </div>
             )}
