@@ -8,7 +8,13 @@ import Link from "next/link";
 import { BarChart2, Trophy, Calendar } from "lucide-react";
 import { LEADERBOARD_SIZE } from "@/lib/constants";
 import GameView, { PlayerPair } from "@/components/GameView";
-import { getBestStreak, saveBestStreak, getDailyResults, hasDismissedDailyNudge, saveDismissedDailyNudge } from "@/lib/cookies";
+import {
+  getBestStreak,
+  saveBestStreak,
+  getDailyResults,
+  hasDismissedDailyNudge,
+  saveDismissedDailyNudge,
+} from "@/lib/cookies";
 import { getDayOf } from "@/lib/dates";
 
 async function fetchRandomPair(): Promise<PlayerPair> {
@@ -90,18 +96,23 @@ export default function Home() {
   useEffect(() => {
     setBestStreak(getBestStreak());
 
-    const cookie = getDailyResults();
-    const today = getDayOf(new Date()).toISOString();
-    const playedToday = cookie && new Date(cookie.day).toISOString() === today;
-    let nudgeTimer: ReturnType<typeof setTimeout> | null = null;
-    if (!playedToday && !hasDismissedDailyNudge()) {
-      nudgeTimer = setTimeout(() => setShowDailyNudge(true), 1500);
-    }
-
     const params = new URLSearchParams(window.location.search);
     const p1Id = params.get("p1");
     const p2Id = params.get("p2");
     advance(p1Id, p2Id);
+
+    const cookie = getDailyResults();
+    const today = getDayOf(new Date()).toISOString();
+    const playedToday = cookie && new Date(cookie.day).toISOString() === today;
+    let nudgeTimer: ReturnType<typeof setTimeout> | null = null;
+    if (
+      !playedToday &&
+      !hasDismissedDailyNudge() &&
+      p1Id == null &&
+      p2Id == null
+    ) {
+      nudgeTimer = setTimeout(() => setShowDailyNudge(true), 1500);
+    }
 
     const ref = params.get("ref");
     let ctrl: AbortController | null = null;
@@ -289,7 +300,10 @@ export default function Home() {
                 Play now
               </Link>
               <button
-                onClick={() => { saveDismissedDailyNudge(); setShowDailyNudge(false); }}
+                onClick={() => {
+                  saveDismissedDailyNudge();
+                  setShowDailyNudge(false);
+                }}
                 className="text-gray-400 dark:text-gray-500 text-sm font-semibold hover:text-gray-600 dark:hover:text-gray-300 transition-colors cursor-pointer pt-3"
               >
                 Maybe later
