@@ -328,6 +328,10 @@ export default function Home() {
               You will be given two random NBA players. Your goal is to guess
               which player most people think is hotter.
             </p>
+            <p className="text-gray-700 dark:text-gray-300 leading-relaxed mt-4">
+              Your vote counts! As you play, your votes will update each
+              player&apos;s win probability.
+            </p>
             <button
               onClick={() => setShowHowToPlay(false)}
               className="mt-6 w-full bg-orange-400 hover:bg-orange-500 text-white font-bold py-3 rounded-xl transition-colors cursor-pointer"
